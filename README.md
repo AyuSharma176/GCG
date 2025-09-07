@@ -1,7 +1,11 @@
-GCG - GLA Coding Group Website
-Welcome to the official repository for the GLA Coding Group (GCG) website. This is a full-stack web application built to serve as a central hub for the coding community at GLA University, providing resources, a competitive leaderboard, and project showcases.
+<div align="center">
 
-Live Site: https://your-vercel-deployment-url.vercel.app  <!-- Replace with your actual live URL -->
+GCG - GLA Coding Group Website
+A full-stack web application built to serve as a central hub for the coding community at GLA University, providing resources, a competitive leaderboard, and project showcases.
+
+Live Site: https://gcg-frontend.vercel.app/ <!-- Replace with your actual live URL -->
+
+</div>
 
 ✨ Features
 Centralized Resource Hub: A curated collection of resources for Competitive Programming (CP), Data Structures & Algorithms (DSA), and student projects, organized into clear, interactive cards.
@@ -15,33 +19,23 @@ Community Contribution: Students can submit their own projects to be featured on
 Modern UI: A sleek, responsive design built with Tailwind CSS, ensuring the website looks great on all devices.
 
 🛠️ Tech Stack
-This project is a monorepo containing a separate frontend and backend.
+This project is a monorepo containing a separate frontend and backend, built with the MERN stack and other modern technologies.
 
-Frontend:
+Category
 
-Framework: React
+Technologies
 
-Build Tool: Vite
+Frontend
 
-Styling: Tailwind CSS
+React, Vite, Tailwind CSS, React Router DOM
 
-Routing: React Router DOM
+Backend
 
-Backend:
+Node.js, Express, Mongoose, Axios, Cheerio
 
-Runtime: Node.js
+Deployment
 
-Framework: Express
-
-Database: MongoDB with Mongoose
-
-Web Scraping: Axios & Cheerio
-
-Deployment:
-
-Frontend: Vercel
-
-Backend: Render
+Vercel (Frontend), Render (Backend)
 
 🚀 Getting Started
 To run this project on your local machine, follow these steps.
@@ -54,8 +48,8 @@ npm
 A MongoDB Atlas account for the database.
 
 1. Clone the Repository
-git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-cd your-repo-name
+git clone [https://github.com/AyuSharma176/GCG.git](https://github.com/AyuSharma176/GCG.git)
+cd GCG
 
 2. Set Up the Backend
 The backend server connects to the database and provides the API for the leaderboard.
@@ -87,7 +81,7 @@ npm install
 # Start the frontend development server
 npm run dev
 
-The frontend will be running on http://localhost:5173 (or another port if 5173 is busy).
+The frontend will be running on http://localhost:5173 (or another port if it is busy).
 
 🤝 How to Contribute
 We welcome contributions from the community!
