@@ -42,4 +42,24 @@ Clone the project and launch it on your local machine with ease:
 ```bash
 git clone https://github.com/AyuSharma176/GCG.git
 cd GCG
+```
+#2. Frontend Setup
+```bash
+cd frontend_gcg   # or the actual frontend folder
+npm install
+npm run dev
+```
+#3. Backend Setup
+```bash
+cd backend_gcg    # or the actual backend folder
+npm install
+```
+#Create a .env file in backend_gcg and add your MongoDB URI:
+```bash
+MONGO_URI=your_mongodb_connection_string
+```
+#Start the backend server:
+```bash
+npm start
+
 
