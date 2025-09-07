@@ -26,7 +26,7 @@ A modern, open-access hub for the coding community at **GLA University** — fea
 |-------------|--------------------------------------------------------|
 | Frontend    | React, Vite, Tailwind CSS, React Router               |
 | Backend     | Node.js, Express, MongoDB, Axios, Cheerio *(Optional)* |
-| Deployment  | Vercel (Frontend), Render or similar *(Backend)*      |
+| Deployment  | Vercel (Frontend), Render *(Backend)*      |
 
 ---
 
