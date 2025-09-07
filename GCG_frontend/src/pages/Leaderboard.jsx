@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 // The API endpoint for your backend server
-const API_URL = "http://localhost:5000/api/leaderboard";
+const API_URL = "https://gcg-rqxl.onrender.com/api/leaderboard";
 
 // Helper function to extract username from a URL
 const getUsernameFromUrl = (url) => {
