@@ -7,8 +7,20 @@ require('dotenv').config(); // Loads environment variables from a .env file
 const app = express();
 const port = process.env.PORT || 5000;
 
+// CORS Configuration - Allow your Vercel frontend
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // Local development
+    'http://localhost:5174',
+    'https://gcg-frontend.vercel.app', // Your Vercel deployment (update with actual domain)
+    /\.vercel\.app$/ // Allow all Vercel preview deployments
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // MongoDB Connection using environment variable
@@ -404,6 +416,108 @@ app.delete('/api/leaderboard/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting user:', error);
     res.status(500).json({ message: 'Error deleting user', error: error.message });
+  }
+});
+
+// --- CONTEST API ENDPOINTS ---
+
+// GET: Fetch LeetCode upcoming contests
+app.get('/api/contests/leetcode', async (req, res) => {
+  try {
+    // Using alfa-leetcode-api for reliable upcoming contests data
+    const response = await axios.get('https://alfa-leetcode-api.onrender.com/contests');
+
+    if (!response.data) {
+      throw new Error('Invalid response from LeetCode API');
+    }
+
+    // Handle different response structures
+    let allContests = [];
+    if (Array.isArray(response.data)) {
+      allContests = response.data;
+    } else if (response.data.data && Array.isArray(response.data.data)) {
+      allContests = response.data.data;
+    } else if (response.data.contests && Array.isArray(response.data.contests)) {
+      allContests = response.data.contests;
+    }
+
+    // Filter only upcoming contests (where startTime is in the future)
+    const now = Math.floor(Date.now() / 1000);
+    
+    const upcomingContests = allContests
+      .filter(contest => contest.startTime && contest.startTime > now)
+      .sort((a, b) => a.startTime - b.startTime)
+      .slice(0, 10);
+
+    const formattedContests = upcomingContests.map(contest => ({
+      title: contest.title,
+      startTime: contest.startTime * 1000, // Convert to milliseconds
+      duration: contest.duration || 0,
+      url: `https://leetcode.com/contest/${contest.titleSlug}`,
+      platform: 'LeetCode'
+    }));
+
+    res.json({ success: true, contests: formattedContests });
+  } catch (error) {
+    console.error('LeetCode API Error:', error.message);
+    res.json({ success: false, contests: [], error: error.message });
+  }
+});
+
+// GET: Fetch Codeforces upcoming contests
+app.get('/api/contests/codeforces', async (req, res) => {
+  try {
+    const response = await axios.get('https://codeforces.com/api/contest.list');
+
+    if (response.data.status !== 'OK') {
+      throw new Error('Codeforces API returned error');
+    }
+
+    const upcomingContests = response.data.result
+      .filter(contest => contest.phase === 'BEFORE')
+      .sort((a, b) => a.startTimeSeconds - b.startTimeSeconds)
+      .slice(0, 10);
+
+    const formattedContests = upcomingContests.map(contest => ({
+      title: contest.name,
+      startTime: contest.startTimeSeconds * 1000,
+      duration: contest.durationSeconds,
+      url: `https://codeforces.com/contest/${contest.id}`,
+      platform: 'Codeforces'
+    }));
+
+    res.json({ success: true, contests: formattedContests });
+  } catch (error) {
+    console.error('Codeforces API Error:', error.message);
+    res.json({ success: false, contests: [], error: error.message });
+  }
+});
+
+// GET: Fetch all contests (combined)
+app.get('/api/contests/all', async (req, res) => {
+  try {
+    const [leetcodeRes, codeforcesRes] = await Promise.all([
+      axios.get(`http://localhost:${port}/api/contests/leetcode`),
+      axios.get(`http://localhost:${port}/api/contests/codeforces`)
+    ]);
+
+    const leetcodeContests = leetcodeRes.data.contests || [];
+    const codeforcesContests = codeforcesRes.data.contests || [];
+
+    res.json({
+      success: true,
+      leetcode: leetcodeContests,
+      codeforces: codeforcesContests,
+      total: leetcodeContests.length + codeforcesContests.length
+    });
+  } catch (error) {
+    console.error('Error fetching all contests:', error.message);
+    res.status(500).json({ 
+      success: false, 
+      leetcode: [], 
+      codeforces: [],
+      error: error.message 
+    });
   }
 });
 

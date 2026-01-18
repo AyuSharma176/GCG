@@ -3,6 +3,7 @@ import { Routes, Route, NavLink } from "react-router-dom";
 import Home from "./pages/Home";
 import Resources from "./pages/Resources";
 import Leaderboard from "./pages/Leaderboard";
+import Contest from "./pages/Contest";
 import About from "./pages/About";
 import featureImg from "./assets/267.jpg";
 
@@ -13,6 +14,7 @@ function App() {
     { path: "/", label: "Home" },
     { path: "/resources", label: "Resources" },
     { path: "/leaderboard", label: "Leaderboard" },
+    { path: "/contest", label: "Contest" },
     { path: "/about", label: "About" },
   ];
   return (
@@ -106,6 +108,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/contest" element={<Contest />} />
               <Route path="/about" element={<About />} />
             </Routes>
           </main>
