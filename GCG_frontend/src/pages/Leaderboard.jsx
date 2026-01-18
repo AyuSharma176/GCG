@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 // The API endpoint for your backend server
-const API_URL = "https://gcg-rqxl.onrender.com/api/leaderboard";
+const API_URL = import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com/api/leaderboard";
 
 // Helper function to extract username from a URL
 const getUsernameFromUrl = (url) => {
@@ -18,8 +18,10 @@ const getUsernameFromUrl = (url) => {
 export default function Leaderboard() {
   const [users, setUsers] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [newUser, setNewUser] = useState({ name: "", leetcodeURL: "", codechefURL: "" });
+  const [newUser, setNewUser] = useState({ name: "", leetcodeUsername: "", codeforcesUsername: "" });
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(null); // Track which user is being refreshed
 
   // Function to fetch leaderboard data from the backend
   const fetchLeaderboard = async () => {
@@ -49,11 +51,23 @@ export default function Leaderboard() {
   // Function to add a new user by sending data to the backend
   const handleAddUser = async (e) => {
     e.preventDefault();
-    if (!newUser.name || !newUser.leetcodeURL || !newUser.codechefURL) {
+    if (!newUser.name || !newUser.leetcodeUsername || !newUser.codeforcesUsername) {
       alert("Please fill all fields!");
       return;
     }
+
+    // Validate username format
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!usernameRegex.test(newUser.leetcodeUsername)) {
+      alert("Invalid LeetCode username. Use only letters, numbers, underscores, and hyphens.");
+      return;
+    }
+    if (!usernameRegex.test(newUser.codeforcesUsername)) {
+      alert("Invalid Codeforces username. Use only letters, numbers, underscores, and hyphens.");
+      return;
+    }
     
+    setLoading(true);
     try {
       const response = await fetch(API_URL, {
         method: 'POST',
@@ -64,23 +78,50 @@ export default function Leaderboard() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add user');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add user');
       }
       
       // Clear form, hide modal, and refresh the leaderboard
-      setNewUser({ name: "", leetcodeURL: "", codechefURL: "" });
+      setNewUser({ name: "", leetcodeUsername: "", codeforcesUsername: "" });
       setShowForm(false);
       fetchLeaderboard(); // Refresh the data
       
     } catch (error) {
       console.error("Error adding user:", error);
-      alert("Failed to add user. Please try again.");
+      alert(error.message || "Failed to add user. Please check the usernames are correct and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to refresh a user's stats
+  const handleRefreshUser = async (userId) => {
+    setRefreshing(userId);
+    try {
+      const response = await fetch(`${API_URL}/${userId}/refresh`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to refresh user stats');
+      }
+
+      fetchLeaderboard(); // Refresh the entire leaderboard
+    } catch (error) {
+      console.error("Error refreshing user:", error);
+      alert("Failed to refresh user stats. Please try again.");
+    } finally {
+      setRefreshing(null);
     }
   };
 
   const sortedUsers = useMemo(() => {
-    // The backend already provides totalScore, but we can keep this for safety
-    return [...users].sort((a, b) => b.totalScore - a.totalScore);
+    // The backend already provides rankScore sorted, but we can keep this for safety
+    return [...users].sort((a, b) => b.rankScore - a.rankScore);
   }, [users]);
 
   return (
@@ -105,28 +146,51 @@ export default function Leaderboard() {
               <th className="p-4 text-lg">Rank</th>
               <th className="p-4 text-lg">Name</th>
               <th className="p-4 text-lg">LeetCode</th>
-              <th className="p-4 text-lg">CodeChef</th>
-              <th className="p-4 text-lg">Total Score</th>
+              <th className="p-4 text-lg">Codeforces</th>
+              <th className="p-4 text-lg">Total Qs</th>
+              <th className="p-4 text-lg">Score</th>
+              <th className="p-4 text-lg">Actions</th>
             </tr>
           </thead>
           <tbody>
             {error ? (
-              <tr><td colSpan="5" className="p-4 text-center text-red-400">{error}</td></tr>
+              <tr><td colSpan="7" className="p-4 text-center text-red-400">{error}</td></tr>
+            ) : sortedUsers.length === 0 ? (
+              <tr><td colSpan="7" className="p-4 text-center text-gray-400">No users yet. Be the first to add yourself!</td></tr>
             ) : sortedUsers.map((user, index) => (
               <tr key={user._id} className="border-t border-gray-700 hover:bg-gray-700/50">
                 <td className="p-4 font-bold text-xl">#{index + 1}</td>
                 <td className="p-4 font-semibold">{user.name}</td>
                 <td className="p-4">
                   <a href={user.leetcodeURL} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">
-                    {getUsernameFromUrl(user.leetcodeURL)} ({user.leetcodeScore})
+                    <div className="font-medium">{user.leetcodeUsername}</div>
+                    <div className="text-sm text-gray-400">
+                      <span className="text-green-400">{user.leetcodeQuestions} Qs</span>
+                      {user.leetcodeRating > 0 && <span> • Rating: {user.leetcodeRating}</span>}
+                    </div>
                   </a>
                 </td>
                 <td className="p-4">
-                  <a href={user.codechefURL} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">
-                    {getUsernameFromUrl(user.codechefURL)} ({user.codechefScore})
+                  <a href={user.codeforcesURL} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">
+                    <div className="font-medium">{user.codeforcesUsername}</div>
+                    <div className="text-sm text-gray-400">
+                      <span className="text-green-400">{user.codeforcesQuestions} Qs</span>
+                      {user.codeforcesRating > 0 && <span> • Rating: {user.codeforcesRating}</span>}
+                    </div>
                   </a>
                 </td>
-                <td className="p-4 font-bold text-lg">{user.totalScore}</td>
+                <td className="p-4 font-bold text-lg text-green-400">{user.totalQuestions}</td>
+                <td className="p-4 font-bold text-lg text-purple-400">{user.rankScore.toFixed(2)}</td>
+                <td className="p-4">
+                  <button
+                    onClick={() => handleRefreshUser(user._id)}
+                    disabled={refreshing === user._id}
+                    className="text-cyan-400 hover:text-cyan-300 disabled:text-gray-500 text-sm font-medium"
+                    title="Refresh stats"
+                  >
+                    {refreshing === user._id ? '⟳' : '🔄'}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -142,18 +206,58 @@ export default function Leaderboard() {
             <form onSubmit={handleAddUser} className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-gray-300 mb-1">Your Name</label>
-                <input type="text" id="name" name="name" value={newUser.name} onChange={handleInputChange} className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="e.g. Jane Doe" />
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  value={newUser.name} 
+                  onChange={handleInputChange} 
+                  className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" 
+                  placeholder="e.g. Jane Doe"
+                  disabled={loading}
+                  required
+                />
               </div>
               <div>
-                <label htmlFor="leetcodeURL" className="block text-gray-300 mb-1">LeetCode Profile Link</label>
-                <input type="url" id="leetcodeURL" name="leetcodeURL" value={newUser.leetcodeURL} onChange={handleInputChange} className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="https://leetcode.com/username/" />
+                <label htmlFor="leetcodeUsername" className="block text-gray-300 mb-1">LeetCode Username</label>
+                <input 
+                  type="text" 
+                  id="leetcodeUsername" 
+                  name="leetcodeUsername" 
+                  value={newUser.leetcodeUsername} 
+                  onChange={handleInputChange} 
+                  className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" 
+                  placeholder="e.g. uwi"
+                  disabled={loading}
+                  required
+                  pattern="[a-zA-Z0-9_-]+"
+                  title="Only letters, numbers, underscores, and hyphens allowed"
+                />
+                <p className="text-xs text-gray-400 mt-1">Just your username, not the full URL</p>
               </div>
               <div>
-                <label htmlFor="codechefURL" className="block text-gray-300 mb-1">CodeChef Profile Link</label>
-                <input type="url" id="codechefURL" name="codechefURL" value={newUser.codechefURL} onChange={handleInputChange} className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="https://www.codechef.com/users/username" />
+                <label htmlFor="codeforcesUsername" className="block text-gray-300 mb-1">Codeforces Username</label>
+                <input 
+                  type="text" 
+                  id="codeforcesUsername" 
+                  name="codeforcesUsername" 
+                  value={newUser.codeforcesUsername} 
+                  onChange={handleInputChange} 
+                  className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" 
+                  placeholder="e.g. tourist"
+                  disabled={loading}
+                  required
+                  pattern="[a-zA-Z0-9_-]+"
+                  title="Only letters, numbers, underscores, and hyphens allowed"
+                />
+                <p className="text-xs text-gray-400 mt-1">Just your username, not the full URL</p>
               </div>
-              <button type="submit" className="w-full bg-cyan-500 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-cyan-400 transition-all duration-300">
-                Submit
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full bg-cyan-500 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-cyan-400 transition-all duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Fetching your stats... (3-5s)' : 'Submit'}
               </button>
             </form>
           </div>
