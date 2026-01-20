@@ -7,14 +7,30 @@ require('dotenv').config(); // Loads environment variables from a .env file
 const app = express();
 const port = process.env.PORT || 5000;
 
-// CORS Configuration - Allow your Vercel frontend
+// CORS Configuration - Allow your Vercel frontend and PWA
 const corsOptions = {
-  origin: [
-    'http://localhost:5173', // Local development
-    'http://localhost:5174',
-    'https://gcg-frontend.vercel.app', // Your Vercel deployment (update with actual domain)
-    /\.vercel\.app$/ // Allow all Vercel preview deployments
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman, or installed PWAs)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:4173', // Vite preview
+      'https://gcg-frontend.vercel.app',
+    ];
+    
+    // Allow localhost ports, vercel domains, and standalone PWA
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.includes('.vercel.app') ||
+      origin.includes('localhost')
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };
