@@ -2,7 +2,7 @@
 
 #  GCG – GLA Coding Group Website
 
-A modern, open-access hub for the coding community at **GLA University** — featuring curated resources, a sleek UI, and an interactive leaderboard.
+A modern, open-access **SaaS platform** for the coding community at **GLA University** — featuring curated resources, a sleek UI, and an interactive leaderboard.
 
 **Live Site:** [https://gla-coding-group.vercel.app/](https://gla-coding-group.vercel.app/)
 
@@ -21,11 +21,27 @@ A modern, open-access hub for the coding community at **GLA University** — fea
 
 ---
 
+## 🌐 SaaS Architecture
+
+GCG is built as a **Software as a Service (SaaS)** platform using **Progressive Web App (PWA)** technology:
+
+- **🚀 Zero Installation Barriers** — Users can access instantly via browser or install as a native-like app
+- **📱 Cross-Platform** — Single codebase works seamlessly on desktop, mobile, and tablets
+- **🔄 Auto-Updates** — Service workers ensure users always have the latest version
+- **⚡ Offline Capability** — Continue browsing resources even without internet connection
+- **💾 Local Caching** — Fast load times with intelligent caching strategies
+- **🌍 Universal Access** — No app store dependencies, accessible worldwide instantly
+
+This PWA-based SaaS approach provides enterprise-grade features with minimal deployment friction, making coding resources accessible to everyone.
+
+---
+
 ##  Tech Stack
 
 | Layer       | Technology                                            |
 |-------------|--------------------------------------------------------|
 | Frontend    | React, Vite, Tailwind CSS, React Router               |
+| PWA         | vite-plugin-pwa, Workbox, Service Workers             |
 | Backend     | Node.js, Express, MongoDB, Axios                       |
 | APIs        | alfa-leetcode-api, Codeforces REST API                |
 | Deployment  | Vercel (Frontend), Render (Backend)                   |
