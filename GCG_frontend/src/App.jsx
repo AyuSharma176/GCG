@@ -5,7 +5,6 @@ import Resources from "./pages/Resources";
 import Leaderboard from "./pages/Leaderboard";
 import Contest from "./pages/Contest";
 import About from "./pages/About";
-import InstallPWA from "./components/InstallPWA";
 import featureImg from "./assets/267.jpg";
 
 function App() {
@@ -122,7 +121,6 @@ function App() {
           </footer>
         </div>
       </div>
-      <InstallPWA />
     </div>
   );
 }
