@@ -32,7 +32,7 @@ A modern, open-access hub for the coding community at **GLA University** — fea
 
 ---
 
-##  Getting Started
+## 🚀 Getting Started
 
 Clone the project and launch it on your local machine with ease:
 
@@ -58,6 +58,12 @@ VITE_API_URL=http://localhost:5000/api/leaderboard
 Start the development server:
 ```bash
 npm run dev
+```
+
+**Build for Production (with PWA):**
+```bash
+npm run build
+npm run preview  # Test production build locally
 ```
 
 **Build for Production (with PWA):**
