@@ -208,11 +208,7 @@ async function fetchCodeforcesStats(username) {
 }
 
 // Optimized Ranking Algorithm
-// This algorithm considers both the number of questions solved and the ratings
-// Formula: rankScore = (totalQuestions * questionWeight) + (totalRating * ratingWeight)
-// Question weight: 10 (primary factor)
-// Rating weight: 0.25 (secondary factor, more significant than before)
-// This ensures questions are primary while ratings provide meaningful differentiation
+
 function calculateRankScore(leetcodeQuestions, leetcodeRating, codeforcesQuestions, codeforcesRating) {
   const totalQuestions = leetcodeQuestions + codeforcesQuestions;
   
@@ -220,8 +216,7 @@ function calculateRankScore(leetcodeQuestions, leetcodeRating, codeforcesQuestio
   const totalRating = leetcodeRating + codeforcesRating;
   
   // Weighted scoring:
-  // - Questions: 10x weight (solving problems is the main achievement)
-  // - Ratings: 0.25x weight (contest performance adds bonus points)
+
   const questionScore = totalQuestions * 10;
   const ratingScore = totalRating * 0.25;
   
@@ -234,7 +229,6 @@ function calculateRankScore(leetcodeQuestions, leetcodeRating, codeforcesQuestio
 
 // --- API ROUTES ---
 
-// GET: Fetch the entire leaderboard, sorted by rank score
 app.get('/api/leaderboard', async (req, res) => {
   try {
     // Fetch all users and sort them in descending order of their rank score
