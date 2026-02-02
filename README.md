@@ -4,7 +4,7 @@
 
 A modern, open-access **SaaS platform** for the coding community at **GLA University** — featuring curated resources, a sleek UI, and an interactive leaderboard.
 
-**Live Site:** [https://gla-coding-group.vercel.app/](https://gla-coding-group.vercel.app/)
+**Live Site:** [https://gla-coding-group.vercel.app/](https://gcg.ayusharma.in/)
 
 </div>
 
