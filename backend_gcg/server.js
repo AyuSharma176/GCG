@@ -663,7 +663,7 @@ app.get('/api/exam/generate-questions', async (req, res) => {
     const existingQuestions = await DailyQuestions.findOne({ date: istDateKey });
     
     if (existingQuestions) {
-      console.log('✅ Found existing questions in database - returning cached version');
+      console.log(' Found existing questions in database - returning cached version');
       return res.json({
         success: true,
         questions: existingQuestions.questions,
@@ -672,7 +672,7 @@ app.get('/api/exam/generate-questions', async (req, res) => {
       });
     }
     
-    console.log('🤖 No existing questions found - generating new questions with Gemini...');
+    console.log(' No existing questions found - generating new questions with Gemini...');
         const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
     
     const prompt = `Generate exactly 3 random not repeated LeetCode programming questions in JSON format based on the following syllabus.
@@ -689,10 +689,11 @@ app.get('/api/exam/generate-questions', async (req, res) => {
     - Mapping Concepts
     - Array manipulation (imp)
     - String manipulation
-    - Tree
+    - Tree(imp)
+    - Segement Tree
     - Graph (imp)
     - Bit Mapping and Hashing
-    - Recursion (imp)
+    - Recursion 
     - Heap
     - Divide and Conquer
     
@@ -700,9 +701,9 @@ app.get('/api/exam/generate-questions', async (req, res) => {
     - questionNumber: The actual LeetCode question number (integer)
     - questionName: The exact title of the LeetCode problem
     - questionLink: The full LeetCode URL (https://leetcode.com/problems/question-slug/)
-    - questionLevel: Either "Easy", "Medium", or "Hard"
+    - questionLevel: first:"Easy", second:"Medium", and third:"Hard"
     
-    Generate a diverse mix of difficulty levels covering different topics from the syllabus. 
+    Generate a diverse mix of mix difficulty levels covering different topics from the syllabus. 
     Use real but less commonly known LeetCode problems that exist on the platform.
     Return ONLY valid JSON array format without any markdown formatting or extra text.
     
