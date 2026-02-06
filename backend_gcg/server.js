@@ -149,25 +149,38 @@ async function ensureMongoConnection() {
 }
 
 // Helper function to save questions to database
+// Helper to get IST date at midnight
+function getISTDateAtMidnight() {
+  const now = new Date();
+  const istString = now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+  const istDate = new Date(istString);
+  istDate.setHours(0, 0, 0, 0);
+  
+  // Convert back to UTC for consistent storage
+  const dateStr = `${istDate.getFullYear()}-${String(istDate.getMonth() + 1).padStart(2, '0')}-${String(istDate.getDate()).padStart(2, '0')}`;
+  return new Date(dateStr + 'T00:00:00.000Z');
+}
+
 async function saveQuestionsToDb(questions) {
   try {
     await ensureMongoConnection();
     
-    // Get today's date in IST timezone
-    const istTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    istTime.setHours(0, 0, 0, 0);
+    // Get today's date in IST timezone (normalized to UTC midnight)
+    const istDateKey = getISTDateAtMidnight();
+    
+    console.log('💾 Saving questions for date:', istDateKey.toISOString());
     
     const saved = await DailyQuestions.findOneAndUpdate(
-      { date: istTime },
+      { date: istDateKey },
       {
-        date: istTime,
+        date: istDateKey,
         questions: questions,
         generatedAt: new Date()
       },
       { upsert: true, new: true }
     );
     
-    console.log('✅ Questions saved to MongoDB for date:', istTime.toISOString());
+    console.log('✅ Questions saved to MongoDB for date:', istDateKey.toISOString());
     return saved;
   } catch (saveError) {
     console.error('❌ Error saving to MongoDB:', saveError.message);
@@ -641,14 +654,16 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // GET: Generate LeetCode questions using Gemini
 app.get('/api/exam/generate-questions', async (req, res) => {
   try {
-    console.log(' Generating LeetCode questions using Gemini...');
-        // Check if questions already exist for today (IST)
-    const istTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    istTime.setHours(0, 0, 0, 0);
+    await ensureMongoConnection();
     
-    const existingQuestions = await DailyQuestions.findOne({ date: istTime });
+    // Check if questions already exist for today (IST)
+    const istDateKey = getISTDateAtMidnight();
+    console.log('🔍 Checking for existing questions for date:', istDateKey.toISOString());
+    
+    const existingQuestions = await DailyQuestions.findOne({ date: istDateKey });
+    
     if (existingQuestions) {
-      console.log('✅ Returning existing questions for today from database');
+      console.log('✅ Found existing questions in database - returning cached version');
       return res.json({
         success: true,
         questions: existingQuestions.questions,
@@ -656,6 +671,8 @@ app.get('/api/exam/generate-questions', async (req, res) => {
         fromCache: true
       });
     }
+    
+    console.log('🤖 No existing questions found - generating new questions with Gemini...');
         const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
     
     const prompt = `Generate exactly 3 random not repeated LeetCode programming questions in JSON format based on the following syllabus.
@@ -779,9 +796,8 @@ app.get('/api/exam/previous-questions', async (req, res) => {
     // Ensure MongoDB connection
     await ensureMongoConnection();
     
-    // Get today in IST timezone
-    const istTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    istTime.setHours(0, 0, 0, 0);
+    // Get today in IST timezone (normalized)
+    const istToday = getISTDateAtMidnight();
     
     // Get all questions (including today's)
     const allQuestions = await DailyQuestions.find({})
@@ -793,12 +809,10 @@ app.get('/api/exam/previous-questions', async (req, res) => {
     
     // Separate today's and previous questions
     const previousQuestions = allQuestions.filter(q => {
-      const qDate = new Date(q.date);
-      qDate.setHours(0, 0, 0, 0);
-      return qDate.getTime() < istTime.getTime();
+      return new Date(q.date).getTime() < istToday.getTime();
     });
     
-    console.log(`✅ Found ${previousQuestions.length} previous question sets`);
+    console.log(`✅ Found ${previousQuestions.length} previous question sets (excluding today)`);
     
     res.json({
       success: true,
