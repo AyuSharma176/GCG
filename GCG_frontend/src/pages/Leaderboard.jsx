@@ -21,7 +21,8 @@ export default function Leaderboard() {
   const [newUser, setNewUser] = useState({ name: "", leetcodeUsername: "", codeforcesUsername: "" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(null); // Track which user is being refreshed
+  const [refreshing, setRefreshing] = useState(false); // Track if leaderboard is being refreshed
+  const [initialLoading, setInitialLoading] = useState(true); // Track initial page load
 
   // Function to fetch leaderboard data from the backend
   const fetchLeaderboard = async () => {
@@ -35,6 +36,8 @@ export default function Leaderboard() {
     } catch (error) {
       console.error("Failed to fetch leaderboard:", error);
       setError("Could not load leaderboard data. Please make sure the backend server is running.");
+    } finally {
+      setInitialLoading(false);
     }
   };
 
@@ -95,27 +98,16 @@ export default function Leaderboard() {
     }
   };
 
-  // Function to refresh a user's stats
-  const handleRefreshUser = async (userId) => {
-    setRefreshing(userId);
+  // Function to refresh all rankings
+  const handleRefreshLeaderboard = async () => {
+    setRefreshing(true);
     try {
-      const response = await fetch(`${API_URL}/${userId}/refresh`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to refresh user stats');
-      }
-
-      fetchLeaderboard(); // Refresh the entire leaderboard
+      await fetchLeaderboard(); // Refresh the entire leaderboard
     } catch (error) {
-      console.error("Error refreshing user:", error);
-      alert("Failed to refresh user stats. Please try again.");
+      console.error("Error refreshing leaderboard:", error);
+      alert("Failed to refresh leaderboard. Please try again.");
     } finally {
-      setRefreshing(null);
+      setRefreshing(false);
     }
   };
 
@@ -124,18 +116,44 @@ export default function Leaderboard() {
     return [...users].sort((a, b) => b.rankScore - a.rankScore);
   }, [users]);
 
+  // Show loader while initial data is loading
+  if (initialLoading) {
+    return (
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+          <div className="relative w-20 h-20">
+            <div className="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-transparent border-t-cyan-500 rounded-full animate-spin"></div>
+          </div>
+          <p className="text-xl text-gray-400 animate-pulse">Loading leaderboard...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
-      <div className="flex justify-between items-center mb-10">
-        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-10">
+        <h2 className="text-2xl sm:text-4xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
           Leaderboard
         </h2>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:bg-cyan-400 transition-all duration-300"
-        >
-          Add Yourself
-        </button>
+        <div className="flex gap-2 sm:gap-4">
+          <button
+            onClick={handleRefreshLeaderboard}
+            disabled={refreshing}
+            className="bg-purple-500 text-white font-bold py-2 px-3 sm:px-6 rounded-lg shadow-lg hover:bg-purple-400 transition-all duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+            title="Refresh Rankings"
+          >
+            <span className={refreshing ? 'inline-block animate-spin' : ''}>{refreshing ? '⟳' : '🔄'}</span>
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-cyan-500 text-white font-bold py-2 px-3 sm:px-6 rounded-lg shadow-lg hover:bg-cyan-400 transition-all duration-300 text-sm sm:text-base whitespace-nowrap"
+          >
+            Add Yourself
+          </button>
+        </div>
       </div>
 
       {/* Leaderboard Table */}
@@ -143,54 +161,43 @@ export default function Leaderboard() {
         <table className="min-w-full text-left text-white">
           <thead className="bg-gray-800/60">
             <tr>
-              <th className="p-4 text-lg">Rank</th>
-              <th className="p-4 text-lg">Name</th>
-              <th className="p-4 text-lg">LeetCode</th>
-              <th className="p-4 text-lg">Codeforces</th>
-              <th className="p-4 text-lg">Total Qs</th>
-              <th className="p-4 text-lg">Score</th>
-              <th className="p-4 text-lg">Actions</th>
+              <th className="p-2 sm:p-4 text-sm sm:text-lg">Rank</th>
+              <th className="p-2 sm:p-4 text-sm sm:text-lg">Name</th>
+              <th className="p-2 sm:p-4 text-sm sm:text-lg">LeetCode</th>
+              <th className="p-2 sm:p-4 text-sm sm:text-lg">Codeforces</th>
+              <th className="p-2 sm:p-4 text-sm sm:text-lg">Total Qs</th>
+              <th className="p-2 sm:p-4 text-sm sm:text-lg">Score</th>
             </tr>
           </thead>
           <tbody>
             {error ? (
-              <tr><td colSpan="7" className="p-4 text-center text-red-400">{error}</td></tr>
+              <tr><td colSpan="6" className="p-3 sm:p-4 text-center text-red-400 text-sm sm:text-base">{error}</td></tr>
             ) : sortedUsers.length === 0 ? (
-              <tr><td colSpan="7" className="p-4 text-center text-gray-400">No users yet. Be the first to add yourself!</td></tr>
+              <tr><td colSpan="6" className="p-3 sm:p-4 text-center text-gray-400 text-sm sm:text-base">No users yet. Be the first to add yourself!</td></tr>
             ) : sortedUsers.map((user, index) => (
               <tr key={user._id} className="border-t border-gray-700 hover:bg-gray-700/50">
-                <td className="p-4 font-bold text-xl">#{index + 1}</td>
-                <td className="p-4 font-semibold">{user.name}</td>
-                <td className="p-4">
+                <td className="p-2 sm:p-4 font-bold text-base sm:text-xl">#{index + 1}</td>
+                <td className="p-2 sm:p-4 font-semibold text-sm sm:text-base">{user.name}</td>
+                <td className="p-2 sm:p-4">
                   <a href={user.leetcodeURL} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">
-                    <div className="font-medium">{user.leetcodeUsername}</div>
-                    <div className="text-sm text-gray-400">
+                    <div className="font-medium text-sm sm:text-base">{user.leetcodeUsername}</div>
+                    <div className="text-xs sm:text-sm text-gray-400">
                       <span className="text-green-400">{user.leetcodeQuestions} Qs</span>
-                      {user.leetcodeRating > 0 && <span> • Rating: {user.leetcodeRating}</span>}
+                      {user.leetcodeRating > 0 && <span className="hidden sm:inline"> • Rating: {user.leetcodeRating}</span>}
                     </div>
                   </a>
                 </td>
-                <td className="p-4">
+                <td className="p-2 sm:p-4">
                   <a href={user.codeforcesURL} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">
-                    <div className="font-medium">{user.codeforcesUsername}</div>
-                    <div className="text-sm text-gray-400">
+                    <div className="font-medium text-sm sm:text-base">{user.codeforcesUsername}</div>
+                    <div className="text-xs sm:text-sm text-gray-400">
                       <span className="text-green-400">{user.codeforcesQuestions} Qs</span>
-                      {user.codeforcesRating > 0 && <span> • Rating: {user.codeforcesRating}</span>}
+                      {user.codeforcesRating > 0 && <span className="hidden sm:inline"> • Rating: {user.codeforcesRating}</span>}
                     </div>
                   </a>
                 </td>
-                <td className="p-4 font-bold text-lg text-green-400">{user.totalQuestions}</td>
-                <td className="p-4 font-bold text-lg text-purple-400">{user.rankScore.toFixed(2)}</td>
-                <td className="p-4">
-                  <button
-                    onClick={() => handleRefreshUser(user._id)}
-                    disabled={refreshing === user._id}
-                    className="text-cyan-400 hover:text-cyan-300 disabled:text-gray-500 text-sm font-medium"
-                    title="Refresh stats"
-                  >
-                    {refreshing === user._id ? '⟳' : '🔄'}
-                  </button>
-                </td>
+                <td className="p-2 sm:p-4 font-bold text-sm sm:text-lg text-green-400">{user.totalQuestions}</td>
+                <td className="p-2 sm:p-4 font-bold text-sm sm:text-lg text-purple-400">{user.rankScore.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>

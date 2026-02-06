@@ -1,0 +1,6 @@
+# Temp directory for code execution
+temp/
+*.exe
+*.class
+*.pyc
+__pycache__/
