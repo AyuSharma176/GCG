@@ -252,7 +252,7 @@ function Exam() {
       {/* Previous Days' Questions Section - Calendar Style */}
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-white mb-4 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-          📚 Previous Days' Questions
+           Previous Days' Questions
         </h2>
         
         {loadingPrevious ? (
