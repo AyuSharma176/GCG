@@ -48,6 +48,16 @@ const mongoURI = process.env.MONGO_URI;
 
 let isConnected = false;
 
+// Health check endpoint for UptimeRobot (keeps backend awake)
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    dbConnected: isConnected 
+  });
+});
+
 mongoose.connect(mongoURI, {
   serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
