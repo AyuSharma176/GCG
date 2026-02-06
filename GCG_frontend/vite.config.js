@@ -52,7 +52,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/api\.gcg\.com\/.*/i,
+            urlPattern: /^https:\/\/gcg-rqxl\.onrender\.com\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',

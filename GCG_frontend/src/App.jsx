@@ -5,6 +5,7 @@ import Resources from "./pages/Resources";
 import Leaderboard from "./pages/Leaderboard";
 import Contest from "./pages/Contest";
 import About from "./pages/About";
+import Exam from "./pages/Exam";
 import featureImg from "./assets/267.jpg";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
     { path: "/resources", label: "Resources" },
     { path: "/leaderboard", label: "Leaderboard" },
     { path: "/contest", label: "Contest" },
+    { path: "/exam", label: "Exam" },
     { path: "/about", label: "About" },
   ];
   return (
@@ -108,6 +110,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/exam" element={<Exam />} />
               <Route path="/contest" element={<Contest />} />
               <Route path="/about" element={<About />} />
             </Routes>
