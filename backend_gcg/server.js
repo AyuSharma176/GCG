@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config(); // Loads environment variables from a .env file
 
 const app = express();
@@ -18,13 +19,16 @@ const corsOptions = {
       'http://localhost:5174',
       'http://localhost:4173', // Vite preview
       'https://gcg-frontend.vercel.app',
+      'https://gcg.ayusharma.in',
+      'http://gcg.ayusharma.in',
     ];
     
-    // Allow localhost ports, vercel domains, and standalone PWA
+    // Allow localhost ports, vercel domains, custom domain, and standalone PWA
     if (
       allowedOrigins.includes(origin) ||
       origin.includes('.vercel.app') ||
-      origin.includes('localhost')
+      origin.includes('localhost') ||
+      origin.includes('ayusharma.in')
     ) {
       callback(null, true);
     } else {
@@ -39,11 +43,34 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// MongoDB Connection using environment variable
+// MongoDB Connection using environment variable with improved error handling
 const mongoURI = process.env.MONGO_URI;
-mongoose.connect(mongoURI)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch(err => console.error('MongoDB connection error:', err));
+
+let isConnected = false;
+
+mongoose.connect(mongoURI, {
+  serverSelectionTimeoutMS: 30000,
+  socketTimeoutMS: 45000,
+})
+  .then(() => {
+    console.log('MongoDB connected successfully');
+    isConnected = true;
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    isConnected = false;
+  });
+
+// Handle connection events
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+  isConnected = false;
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB error:', err);
+  isConnected = false;
+});
 
 // Mongoose Schema for the Leaderboard
 const leaderboardSchema = new mongoose.Schema({
@@ -72,6 +99,71 @@ const leaderboardSchema = new mongoose.Schema({
 });
 
 const Leaderboard = mongoose.model('Leaderboard', leaderboardSchema);
+
+// Mongoose Schema for Daily Questions
+const questionsSchema = new mongoose.Schema({
+  date: { type: Date, required: true, unique: true },
+  questions: [{
+    questionNumber: { type: Number, required: true },
+    questionName: { type: String, required: true },
+    questionLink: { type: String, required: true },
+    questionLevel: { type: String, required: true }
+  }],
+  generatedAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const DailyQuestions = mongoose.model('DailyQuestions', questionsSchema);
+
+// Helper function to ensure MongoDB is connected
+async function ensureMongoConnection() {
+  if (mongoose.connection.readyState === 1) {
+    return true;
+  }
+  console.log('⚠️ MongoDB not ready, waiting for connection...');
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error('MongoDB connection timeout'));
+    }, 10000);
+    
+    mongoose.connection.once('connected', () => {
+      clearTimeout(timeout);
+      resolve(true);
+    });
+    
+    if (mongoose.connection.readyState === 1) {
+      clearTimeout(timeout);
+      resolve(true);
+    }
+  });
+}
+
+// Helper function to save questions to database
+async function saveQuestionsToDb(questions) {
+  try {
+    await ensureMongoConnection();
+    
+    // Get today's date in IST timezone
+    const istTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    istTime.setHours(0, 0, 0, 0);
+    
+    const saved = await DailyQuestions.findOneAndUpdate(
+      { date: istTime },
+      {
+        date: istTime,
+        questions: questions,
+        generatedAt: new Date()
+      },
+      { upsert: true, new: true }
+    );
+    
+    console.log('✅ Questions saved to MongoDB for date:', istTime.toISOString());
+    return saved;
+  } catch (saveError) {
+    console.error('❌ Error saving to MongoDB:', saveError.message);
+    throw saveError;
+  }
+}
 
 // --- HELPER FUNCTIONS FOR API CALLS ---
 
@@ -527,6 +619,188 @@ app.get('/api/contests/all', async (req, res) => {
       leetcode: [], 
       codeforces: [],
       error: error.message 
+    });
+  }
+});
+
+// --- GEMINI AI ENDPOINTS ---
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// GET: Generate LeetCode questions using Gemini
+app.get('/api/exam/generate-questions', async (req, res) => {
+  try {
+    console.log(' Generating LeetCode questions using Gemini...');
+        // Check if questions already exist for today (IST)
+    const istTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    istTime.setHours(0, 0, 0, 0);
+    
+    const existingQuestions = await DailyQuestions.findOne({ date: istTime });
+    if (existingQuestions) {
+      console.log('✅ Returning existing questions for today from database');
+      return res.json({
+        success: true,
+        questions: existingQuestions.questions,
+        generatedAt: existingQuestions.generatedAt.toISOString(),
+        fromCache: true
+      });
+    }
+        const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    
+    const prompt = `Generate exactly 3 random not repeated LeetCode programming questions in JSON format based on the following syllabus.
+    
+    IMPORTANT: Avoid famous and very common questions like "Two Sum", "Reverse Linked List", "Valid Parentheses", etc. 
+    Focus on rare, less commonly solved problems that are still relevant for competitive programming practice.
+    
+    SYLLABUS (pick questions from these topics, prioritize (imp) topics and also make sure the ques will be of HACKWITHINFY level and format):
+    - Dynamic Programming (imp)
+    - Greedy Algorithms
+    - Backtracking
+    - Stack
+    - Queue
+    - Mapping Concepts
+    - Array manipulation (imp)
+    - String manipulation
+    - Tree
+    - Graph (imp)
+    - Bit Mapping and Hashing
+    - Recursion (imp)
+    - Heap
+    - Divide and Conquer
+    
+    Each question should include:
+    - questionNumber: The actual LeetCode question number (integer)
+    - questionName: The exact title of the LeetCode problem
+    - questionLink: The full LeetCode URL (https://leetcode.com/problems/question-slug/)
+    - questionLevel: Either "Easy", "Medium", or "Hard"
+    
+    Generate a diverse mix of difficulty levels covering different topics from the syllabus. 
+    Use real but less commonly known LeetCode problems that exist on the platform.
+    Return ONLY valid JSON array format without any markdown formatting or extra text.
+    
+    Example format:
+    [
+      {
+        "questionNumber": 1,
+        "questionName": "Two Sum",
+        "questionLink": "https://leetcode.com/problems/two-sum/",
+        "questionLevel": "Easy"
+      }
+    ]`;
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+    
+    // Clean up the response - remove markdown code blocks if present
+    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    // Parse the JSON
+    const questions = JSON.parse(text);
+    
+    // Validate the response
+    if (!Array.isArray(questions) || questions.length !== 3) {
+      throw new Error('Invalid response format from Gemini');
+    }
+    
+    console.log('✅ Successfully generated questions:', questions);
+    
+    // Save to MongoDB
+    try {
+      await saveQuestionsToDb(questions);
+    } catch (saveError) {
+      console.error('❌ Failed to save questions, but continuing:', saveError.message);
+    }
+    
+    res.json({
+      success: true,
+      questions: questions,
+      generatedAt: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Gemini API Error:', error.message);
+    
+    // Fallback questions if Gemini fails
+    const fallbackQuestions = [
+      {
+        questionNumber: 1,
+        questionName: "Two Sum",
+        questionLink: "https://leetcode.com/problems/two-sum/",
+        questionLevel: "Easy"
+      },
+      {
+        questionNumber: 15,
+        questionName: "3Sum",
+        questionLink: "https://leetcode.com/problems/3sum/",
+        questionLevel: "Medium"
+      },
+      {
+        questionNumber: 41,
+        questionName: "First Missing Positive",
+        questionLink: "https://leetcode.com/problems/first-missing-positive/",
+        questionLevel: "Hard"
+      }
+    ];
+    
+    // Try to save fallback questions too
+    try {
+      await saveQuestionsToDb(fallbackQuestions);
+    } catch (saveError) {
+      console.error('❌ Failed to save fallback questions:', saveError.message);
+    }
+    
+    res.json({
+      success: true,
+      questions: fallbackQuestions,
+      generatedAt: new Date().toISOString(),
+      isFallback: true,
+      error: error.message
+    });
+  }
+});
+
+// GET: Fetch previous days' questions
+app.get('/api/exam/previous-questions', async (req, res) => {
+  try {
+    console.log('📚 Fetching previous questions...');
+    
+    // Ensure MongoDB connection
+    await ensureMongoConnection();
+    
+    // Get today in IST timezone
+    const istTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    istTime.setHours(0, 0, 0, 0);
+    
+    // Get all questions (including today's)
+    const allQuestions = await DailyQuestions.find({})
+    .sort({ date: -1 })
+    .limit(30)
+    .maxTimeMS(20000); // Set query timeout to 20 seconds
+    
+    console.log(`✅ Found ${allQuestions.length} total question sets`);
+    
+    // Separate today's and previous questions
+    const previousQuestions = allQuestions.filter(q => {
+      const qDate = new Date(q.date);
+      qDate.setHours(0, 0, 0, 0);
+      return qDate.getTime() < istTime.getTime();
+    });
+    
+    console.log(`✅ Found ${previousQuestions.length} previous question sets`);
+    
+    res.json({
+      success: true,
+      previousQuestions: previousQuestions
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching previous questions:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      previousQuestions: []
     });
   }
 });
