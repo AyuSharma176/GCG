@@ -7,7 +7,7 @@ require('dotenv').config(); // Loads environment variables from a .env file
 
 const app = express();
 const port = process.env.PORT || 5000;
-
+module.exports = app;
 // CORS Configuration - Allow your Vercel frontend and PWA
 const corsOptions = {
   origin: function (origin, callback) {
@@ -830,7 +830,7 @@ app.get('/api/exam/previous-questions', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server is running on port: ${port}`);
+// });
 
