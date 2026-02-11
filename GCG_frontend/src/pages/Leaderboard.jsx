@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 // The API endpoint for your backend server
-const API_BASE =
-  import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com";
+const API_BASE = import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com";
 
 export default function Leaderboard() {
   const [users, setUsers] = useState([]);
