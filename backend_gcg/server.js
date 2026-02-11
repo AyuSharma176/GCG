@@ -48,6 +48,20 @@ const mongoURI = process.env.MONGO_URI;
 
 let isConnected = false;
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'GCG Backend API', 
+    version: '1.0',
+    endpoints: {
+      health: '/health',
+      leaderboard: '/api/leaderboard',
+      contest: '/api/contest',
+      exam: '/api/exam'
+    }
+  });
+});
+
 // Health check endpoint for UptimeRobot (keeps backend awake)
 app.get('/health', (req, res) => {
   res.status(200).json({ 
@@ -830,7 +844,7 @@ app.get('/api/exam/previous-questions', async (req, res) => {
   }
 });
 
-// app.listen(port, () => {
-//   console.log(`Server is running on port: ${port}`);
-// });
+app.listen(port, () => {
+  console.log(`Server is running on port: ${port}`);
+});
 

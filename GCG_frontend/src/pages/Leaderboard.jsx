@@ -1,19 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 
 // The API endpoint for your backend server
-const API_URL = import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com/api/leaderboard";
-
-// Helper function to extract username from a URL
-const getUsernameFromUrl = (url) => {
-  try {
-    const path = new URL(url).pathname;
-    const parts = path.split('/').filter(part => part && part !== 'users');
-    return parts.pop() || '';
-  } catch (error) {
-    console.error("Invalid URL:", url);
-    return url;
-  }
-};
+const API_BASE =
+  import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com";
 
 export default function Leaderboard() {
   const [users, setUsers] = useState([]);
@@ -27,7 +16,7 @@ export default function Leaderboard() {
   // Function to fetch leaderboard data from the backend
   const fetchLeaderboard = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(`${API_BASE}/api/leaderboard`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -72,7 +61,7 @@ export default function Leaderboard() {
     
     setLoading(true);
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_BASE}/api/leaderboard`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
