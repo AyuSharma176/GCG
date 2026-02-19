@@ -157,7 +157,7 @@ function PreviousYear() {
           <div className="flex items-center gap-3 mb-5">
             <div className="w-9 h-9 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-lg">🤖</div>
             <div>
-              <h2 className="text-white font-bold text-lg">AI Question Generator</h2>
+              <h2 className="text-white font-bold text-lg">Question Generator</h2>
               <p className="text-white/40 text-xs">Generate a question tailored to your target company</p>
             </div>
           </div>
