@@ -139,12 +139,37 @@ const questionsSchema = new mongoose.Schema({
 
 const DailyQuestions = mongoose.model('DailyQuestions', questionsSchema);
 
+// Mongoose Schema for Previous Year Questions
+const previousYearQuestionSchema = new mongoose.Schema({
+  questionId: { type: String, required: true, unique: true },
+  company: { type: String, required: true }, // e.g., "HACKWITHINFY", "Microsoft", "Amazon", "JUSPAY"
+  year: { type: String, required: true },
+  problemStatement: { type: String, required: true },
+  examples: [{
+    input: { type: String, required: true },
+    output: { type: String, required: true },
+    explanation: { type: String }
+  }],
+  testCases: [{
+    input: { type: String, required: true },
+    output: { type: String, required: true }
+  }],
+  constraints: [{ type: String }],
+  difficulty: { type: String, required: true }, // "Easy", "Medium", "Hard"
+  topics: [{ type: String }],
+  explanation: { type: String },
+  generatedAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const PreviousYearQuestion = mongoose.model('PreviousYearQuestion', previousYearQuestionSchema);
+
 // Helper function to ensure MongoDB is connected
 async function ensureMongoConnection() {
   if (mongoose.connection.readyState === 1) {
     return true;
   }
-  console.log('⚠️ MongoDB not ready, waiting for connection...');
+  console.log(' MongoDB not ready, waiting for connection...');
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       reject(new Error('MongoDB connection timeout'));
@@ -182,7 +207,7 @@ async function saveQuestionsToDb(questions) {
     // Get today's date in IST timezone (normalized to UTC midnight)
     const istDateKey = getISTDateAtMidnight();
     
-    console.log('💾 Saving questions for date:', istDateKey.toISOString());
+    console.log(' Saving questions for date:', istDateKey.toISOString());
     
     const saved = await DailyQuestions.findOneAndUpdate(
       { date: istDateKey },
@@ -194,10 +219,10 @@ async function saveQuestionsToDb(questions) {
       { upsert: true, new: true }
     );
     
-    console.log('✅ Questions saved to MongoDB for date:', istDateKey.toISOString());
+    console.log(' Questions saved to MongoDB for date:', istDateKey.toISOString());
     return saved;
   } catch (saveError) {
-    console.error('❌ Error saving to MongoDB:', saveError.message);
+    console.error(' Error saving to MongoDB:', saveError.message);
     throw saveError;
   }
 }
@@ -217,7 +242,7 @@ function generateProfileURL(username, platform) {
 // Fetch LeetCode user stats
 async function fetchLeetCodeStats(username) {
   try {
-    console.log(`🔄 Fetching LeetCode data for: ${username}`);
+    console.log(` Fetching LeetCode data for: ${username}`);
     
     let questions = 0;
     let rating = 0;
@@ -234,10 +259,10 @@ async function fetchLeetCodeStats(username) {
       
       if (solvedResponse.status === 200 && solvedResponse.data) {
         questions = solvedResponse.data.solvedProblem || 0;
-        console.log(`✅ Got ${questions} problems solved`);
+        console.log(` Got ${questions} problems solved`);
       }
     } catch (err) {
-      console.log(`❌ Failed to fetch solved problems:`, err.message);
+      console.log(` Failed to fetch solved problems:`, err.message);
     }
 
     // Step 2: Get contest rating (separate call)
@@ -251,12 +276,12 @@ async function fetchLeetCodeStats(username) {
       );
       
       if (contestResponse.status === 200 && contestResponse.data) {
-        console.log('📦 Contest response:', contestResponse.data);
+        console.log(' Contest response:', contestResponse.data);
         rating = Math.round(contestResponse.data.contestRating || 0);
-        console.log(`✅ Contest rating: ${rating}`);
+        console.log(` Contest rating: ${rating}`);
       }
     } catch (err) {
-      console.log(`⚠️ Failed to fetch contest rating:`, err.message);
+      console.log(` Failed to fetch contest rating:`, err.message);
     }
 
     // If both failed, try the main endpoint as final fallback
@@ -275,18 +300,18 @@ async function fetchLeetCodeStats(username) {
           if (rating === 0) {
             rating = Math.round(mainResponse.data.contestRating || 0);
           }
-          console.log(`✅ From main endpoint: ${questions} problems, rating: ${rating}`);
+          console.log(` From main endpoint: ${questions} problems, rating: ${rating}`);
         }
       } catch (err) {
-        console.log(`❌ Main endpoint also failed:`, err.message);
+        console.log(` Main endpoint also failed:`, err.message);
       }
     }
 
-    console.log(`✅ Final LeetCode stats for ${username}: ${questions} problems, rating: ${rating}`);
+    console.log(` Final LeetCode stats for ${username}: ${questions} problems, rating: ${rating}`);
     return { questions, rating };
 
   } catch (error) {
-    console.error(`❌ Error fetching LeetCode stats for ${username}:`, error.message);
+    console.error(` Error fetching LeetCode stats for ${username}:`, error.message);
     return { questions: 0, rating: 0 };
   }
 }
@@ -303,13 +328,13 @@ async function fetchCodeforcesStats(username) {
     );
 
     if (userInfoResponse.data.status !== 'OK' || !userInfoResponse.data.result) {
-      console.warn(`⚠️ Codeforces user ${username} not found`);
+      console.warn(` Codeforces user ${username} not found`);
       return { questions: 0, rating: 0 };
     }
 
     const userInfo = userInfoResponse.data.result[0];
     const rating = userInfo.rating || 0;
-    console.log(`✅ Got Codeforces rating: ${rating}`);
+    console.log(` Got Codeforces rating: ${rating}`);
 
     // Fetch user submissions to count accepted problems
     try {
@@ -331,7 +356,7 @@ async function fetchCodeforcesStats(username) {
         });
         
         acceptedProblems = solvedProblems.size;
-        console.log(`✅ Codeforces stats for ${username}: ${acceptedProblems} problems, rating: ${rating}`);
+        console.log(` Codeforces stats for ${username}: ${acceptedProblems} problems, rating: ${rating}`);
       }
 
       return {
@@ -340,14 +365,14 @@ async function fetchCodeforcesStats(username) {
       };
     } catch (submissionError) {
       // If submission fetch fails, still return the rating
-      console.log(`⚠️ Could not fetch submissions, returning rating only`);
+      console.log(` Could not fetch submissions, returning rating only`);
       return {
         questions: 0,
         rating: rating
       };
     }
   } catch (error) {
-    console.error(`❌ Error fetching Codeforces stats for ${username}:`, error.message);
+    console.error(` Error fetching Codeforces stats for ${username}:`, error.message);
     return { questions: 0, rating: 0 };
   }
 }
@@ -690,13 +715,14 @@ app.get('/api/exam/generate-questions', async (req, res) => {
         const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
     
     const prompt = `Generate exactly 3 random not repeated LeetCode programming questions in JSON format based on the following syllabus.
+    Also generate one ques of previous year HACKWITHINFY, Microsoft OA, Amazon OA, JUSPAY OA level and format.
     
     IMPORTANT: Avoid famous and very common questions like "Two Sum", "Reverse Linked List", "Valid Parentheses", etc. 
     Focus on rare, less commonly solved problems that are still relevant for competitive programming practice.
     
-    SYLLABUS (pick questions from these topics, prioritize (imp) topics and also make sure the ques will be of HACKWITHINFY level and format):
+    SYLLABUS (pick questions from these topics, prioritize (imp) topics and also make sure the ques will be of HACKWITHINFY, Microsoft OA , Amazon OA, JUSPAY OA level and format):
     - Dynamic Programming (imp)
-    - Greedy Algorithms
+    - Greedy Algorithms(imp)
     - Backtracking
     - Stack
     - Queue
@@ -710,6 +736,12 @@ app.get('/api/exam/generate-questions', async (req, res) => {
     - Recursion 
     - Heap
     - Divide and Conquer
+    - Binary Search (imp)
+    - Two Pointers (imp)
+    - Sliding Window (imp)
+    - Linked List
+    - Math and Geometry
+    - Design Problems
     
     Each question should include:
     - questionNumber: The actual LeetCode question number (integer)
@@ -746,13 +778,13 @@ app.get('/api/exam/generate-questions', async (req, res) => {
       throw new Error('Invalid response format from Gemini');
     }
     
-    console.log('✅ Successfully generated questions:', questions);
+    console.log(' Successfully generated questions:', questions);
     
     // Save to MongoDB
     try {
       await saveQuestionsToDb(questions);
     } catch (saveError) {
-      console.error('❌ Failed to save questions, but continuing:', saveError.message);
+      console.error(' Failed to save questions, but continuing:', saveError.message);
     }
     
     res.json({
@@ -790,7 +822,7 @@ app.get('/api/exam/generate-questions', async (req, res) => {
     try {
       await saveQuestionsToDb(fallbackQuestions);
     } catch (saveError) {
-      console.error('❌ Failed to save fallback questions:', saveError.message);
+      console.error(' Failed to save fallback questions:', saveError.message);
     }
     
     res.json({
@@ -806,7 +838,7 @@ app.get('/api/exam/generate-questions', async (req, res) => {
 // GET: Fetch previous days' questions
 app.get('/api/exam/previous-questions', async (req, res) => {
   try {
-    console.log('📚 Fetching previous questions...');
+    console.log(' Fetching previous questions...');
     
     // Ensure MongoDB connection
     await ensureMongoConnection();
@@ -820,14 +852,14 @@ app.get('/api/exam/previous-questions', async (req, res) => {
     .limit(30)
     .maxTimeMS(20000); // Set query timeout to 20 seconds
     
-    console.log(`✅ Found ${allQuestions.length} total question sets`);
+    console.log(` Found ${allQuestions.length} total question sets`);
     
     // Separate today's and previous questions
     const previousQuestions = allQuestions.filter(q => {
       return new Date(q.date).getTime() < istToday.getTime();
     });
     
-    console.log(`✅ Found ${previousQuestions.length} previous question sets (excluding today)`);
+    console.log(` Found ${previousQuestions.length} previous question sets (excluding today)`);
     
     res.json({
       success: true,
@@ -840,6 +872,154 @@ app.get('/api/exam/previous-questions', async (req, res) => {
       success: false,
       error: error.message,
       previousQuestions: []
+    });
+  }
+});
+
+// GET: Fetch all previous year questions
+app.get('/api/previous-year-questions', async (req, res) => {
+  try {
+    console.log('📚 Fetching previous year questions...');
+    
+    // Ensure MongoDB connection
+    await ensureMongoConnection();
+    
+    const questions = await PreviousYearQuestion.find({})
+      .sort({ createdAt: -1 })
+      .maxTimeMS(20000);
+    
+    console.log(`✅ Found ${questions.length} previous year questions`);
+    
+    res.json({
+      success: true,
+      questions: questions
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching previous year questions:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      questions: []
+    });
+  }
+});
+
+// POST: Generate a new previous year question using Gemini AI
+app.post('/api/previous-year-questions/generate', async (req, res) => {
+  try {
+    console.log(' Generating new previous year question with Gemini...');
+    
+    // Ensure MongoDB connection
+    await ensureMongoConnection();
+    
+    const { company, year, difficulty } = req.body;
+    
+    // Initialize Gemini AI
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    
+    const prompt = `Generate a realistic previous year interview coding question for ${company || 'top tech companies'} ${year || '2024'} Online Assessment.
+
+Create a single coding problem in JSON format with the following structure:
+
+REQUIREMENTS:
+- The question should be at ${difficulty || 'Medium'} difficulty level.
+- Search for Orignal OA ques on web of selected companies and give those ques as the output.
+- Make it realistic and similar to actual Online Assesment questions
+- Include clear problem statement, examples with explanations, test cases, and constraints
+- The problem should test algorithmic and problem-solving skills
+- Focus on topics like:  
+- Dynamic Programming (imp)
+    - Greedy Algorithms(imp)
+    - Backtracking
+    - Stack
+    - Queue
+    - Mapping Concepts
+    - Array manipulation (imp)
+    - String manipulation
+    - Tree(imp)
+    - Segement Tree
+    - Graph (imp)
+    - Bit Mapping and Hashing
+    - Recursion 
+    - Heap
+    - Divide and Conquer
+    - Binary Search (imp)
+    - Two Pointers (imp)
+    - Sliding Window (imp)
+    - Linked List
+    - Math and Geometry
+    - Design Problems.
+
+Return ONLY valid JSON in this exact format (no markdown, no extra text):
+{
+  "company": "${company || 'HACKWITHINFY'}",
+  "year": "${year || '2025'}",
+  "problemStatement": "full fledge Clear description of the problem...",
+  "examples": [
+    {
+      "input": "Example input",
+      "output": "Example output",
+      "explanation": "Why this output is correct"
+    }
+  ],
+  "testCases": [
+    {
+      "input": "Test case input",
+      "output": "Expected output"
+    }
+  ],
+  "constraints": [
+    "List of constraints like: 1 <= n <= 10^5",
+    "Other constraints..."
+  ],
+  "difficulty": "${difficulty || 'Medium'}",
+  "topics": ["Array", "Dynamic Programming"],
+  "explanation": "Detailed explanation of the solution approach, time complexity, and space complexity"
+}`;
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+    
+    // Clean up the response - remove markdown code blocks if present
+    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    // Parse the JSON
+    const questionData = JSON.parse(text);
+    
+    // Generate a unique question ID
+    const questionId = `${questionData.company.toUpperCase()}_${questionData.year}_${Date.now()}`;
+    
+    // Save to database
+    const newQuestion = new PreviousYearQuestion({
+      questionId: questionId,
+      company: questionData.company,
+      year: questionData.year,
+      problemStatement: questionData.problemStatement,
+      examples: questionData.examples,
+      testCases: questionData.testCases,
+      constraints: questionData.constraints,
+      difficulty: questionData.difficulty,
+      topics: questionData.topics,
+      explanation: questionData.explanation
+    });
+    
+    await newQuestion.save();
+    
+    console.log(' Previous year question generated and saved:', questionId);
+    
+    res.json({
+      success: true,
+      question: newQuestion
+    });
+    
+  } catch (error) {
+    console.error(' Error generating previous year question:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
