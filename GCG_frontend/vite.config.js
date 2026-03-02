@@ -78,12 +78,13 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vite.dev/config/
 export default defineConfig({
-  base: '/', // ✅ ensure correct asset path
+  base: '/', // ✅ important
+
   plugins: [
     react(),
     tailwindcss(),
+
     VitePWA({
       registerType: 'autoUpdate',
 
@@ -97,7 +98,8 @@ export default defineConfig({
       manifest: {
         name: 'GLA Coding Group (GCG)',
         short_name: 'GCG',
-        description: 'The coding community of GLA University - coding contests and leaderboards',
+        description:
+          'The coding community of GLA University - coding contests and leaderboards',
         theme_color: '#3b82f6',
         background_color: '#ffffff',
         display: 'standalone',
@@ -119,9 +121,16 @@ export default defineConfig({
       },
 
       workbox: {
-        navigateFallback: '/index.html', // ✅ important fix
-
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
+
+        // 🔥 CRITICAL FIX
+        navigateFallback: '/index.html',
+
+        // 🔥 VERY IMPORTANT: don't hijack assets
+        navigateFallbackDenylist: [
+          /^\/assets\//,
+          /^\/.*\.(js|css|png|jpg|jpeg|svg|json|woff2)$/
+        ],
 
         runtimeCaching: [
           {
@@ -153,9 +162,9 @@ export default defineConfig({
             }
           }
         ]
-      }
+      },
 
-      //  removed devOptions (this was breaking your app)
+      // ❌ DO NOT enable devOptions
     })
   ]
 })
