@@ -157,7 +157,7 @@ function Exam() {
               )}
               {nextUpdateTime && (
                 <p className="text-blue-300">
-                   Next update: {nextUpdateTime.toLocaleString('en-IN', {
+                   Next Auto update: {nextUpdateTime.toLocaleString('en-IN', {
                     timeZone: 'Asia/Kolkata',
                     month: 'short',
                     day: 'numeric',

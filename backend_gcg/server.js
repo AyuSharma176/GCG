@@ -715,7 +715,6 @@ app.get('/api/exam/generate-questions', async (req, res) => {
         const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
     
     const prompt = `Generate exactly 3 random not repeated LeetCode programming questions in JSON format based on the following syllabus.
-    Also generate one ques of previous year HACKWITHINFY, Microsoft OA, Amazon OA, JUSPAY OA level and format.
     
     IMPORTANT: Avoid famous and very common questions like "Two Sum", "Reverse Linked List", "Valid Parentheses", etc. 
     Focus on rare, less commonly solved problems that are still relevant for competitive programming practice.
