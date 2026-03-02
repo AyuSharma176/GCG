@@ -79,7 +79,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/', // ✅ important
+  base: '/',
 
   plugins: [
     react(),
@@ -87,13 +87,7 @@ export default defineConfig({
 
     VitePWA({
       registerType: 'autoUpdate',
-
-      includeAssets: [
-        'file.svg',
-        'vite.svg',
-        'icon-192x192.png',
-        'icon-512x512.png'
-      ],
+      injectRegister: 'auto',
 
       manifest: {
         name: 'GLA Coding Group (GCG)',
@@ -121,12 +115,15 @@ export default defineConfig({
       },
 
       workbox: {
+        // Force new SW to activate immediately - fixes stale asset hash 404s
+        skipWaiting: true,
+        clientsClaim: true,
+
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
 
-        // 🔥 CRITICAL FIX
         navigateFallback: '/index.html',
 
-        // 🔥 VERY IMPORTANT: don't hijack assets
+        // Don't intercept direct asset requests
         navigateFallbackDenylist: [
           /^\/assets\//,
           /^\/.*\.(js|css|png|jpg|jpeg|svg|json|woff2)$/
@@ -142,9 +139,7 @@ export default defineConfig({
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365
               },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           },
           {
@@ -156,15 +151,11 @@ export default defineConfig({
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 5
               },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           }
         ]
-      },
-
-      // ❌ DO NOT enable devOptions
+      }
     })
   ]
 })
