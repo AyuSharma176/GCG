@@ -81,7 +81,18 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   base: '/',
 
+  define: {
+    // Injected at build time - changes every build, used to detect stale SW caches
+    __APP_BUILD__: JSON.stringify(Date.now().toString())
+  },
   plugins: [
+    // Stamp build timestamp into index.html for the inline SW cache-buster
+    {
+      name: 'inject-build-timestamp',
+      transformIndexHtml(html) {
+        return html.replace('__BUILD_TS_PLACEHOLDER__', Date.now().toString());
+      }
+    },
     react(),
     tailwindcss(),
 
