@@ -127,7 +127,7 @@ function Exam() {
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-          Practice Problem
+          Practice
         </h1>
         <p className="text-gray-400 text-sm">{today}</p>
       </div>

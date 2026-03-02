@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, NavLink } from "react-router-dom";
 import Home from "./pages/Home";
 import Resources from "./pages/Resources";
@@ -12,13 +12,23 @@ import featureImg from "./assets/267.jpg";
 function App() {
   const [mobileMenu, setMobileMenu] = useState(false);
 
+  // Ping the backend health endpoint on load to wake it up
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const baseUrl = apiUrl.replace('/api/leaderboard', '');
+    fetch(`${baseUrl}/health`)
+      .then(res => res.json())
+      .then(data => console.log('✅ Backend awake:', data.status))
+      .catch(() => console.warn('⚠️ Backend wake-up ping failed'));
+  }, []);
+
   const links = [
     { path: "/", label: "Home" },
     { path: "/resources", label: "Resources" },
     { path: "/leaderboard", label: "Leaderboard" },
     { path: "/contest", label: "Contest" },
-    { path: "/exam", label: "Exam" },
-    { path: "/previous-year", label: "Previous Year" },
+    { path: "/exam", label: "Practice" },
+    { path: "/previous-year", label: "Interview" },
     { path: "/about", label: "About" },
   ];
   return (
