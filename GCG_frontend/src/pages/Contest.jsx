@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from "react";
+import Loader from "../components/Loader";
 
 function Contest() {
   const [contests, setContests] = useState({
@@ -129,12 +130,7 @@ function Contest() {
           </p>
         </div>
 
-        {loading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12" style={{borderTop:'2px solid rgb(var(--gcg-accent))',borderBottom:'2px solid rgb(var(--gcg-accent) /0.2)',borderLeft:'2px solid transparent',borderRight:'2px solid transparent'}}></div>
-            <p className="mt-4 text-sm" style={{color:'rgb(var(--gcg-light) /0.5)'}}>Loading contests...</p>
-          </div>
-        )}
+        {loading && <Loader message="Loading contests..." />}
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 text-center">

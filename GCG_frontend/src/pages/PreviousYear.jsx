@@ -1,4 +1,5 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from "react";
+import Loader from "../components/Loader";
 import axios from 'axios';
 
   const difficultyConfig = {
@@ -117,17 +118,7 @@ function PreviousYear() {
   const currentQuestion = selectedQuestion !== null ? questions[selectedQuestion] : null;
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-16 h-16 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full" style={{border:'3px solid rgb(var(--gcg-accent) /0.15)'}}></div>
-            <div className="absolute inset-0 rounded-full animate-spin" style={{border:'3px solid transparent',borderTopColor:'rgb(var(--gcg-accent))'}}></div>
-          </div>
-          <p className="text-white/50 text-sm tracking-widest uppercase">Loading questions</p>
-        </div>
-      </div>
-    );
+    return <Loader message="Loading questions..." />;
   }
 
   return (

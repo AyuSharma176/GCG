@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useMemo } from "react";
+import Loader from "../components/Loader";
 
 // The API endpoint for your backend server
 const API_BASE = import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com";
@@ -106,18 +107,7 @@ export default function Leaderboard() {
 
   // Show loader while initial data is loading
   if (initialLoading) {
-    return (
-      <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-          <div className="relative w-20 h-20">
-            <div className="absolute inset-0 rounded-full" style={{border: '3px solid rgb(var(--gcg-accent) /0.15)'}}></div>
-            <div className="absolute inset-0 rounded-full animate-spin" style={{border: '3px solid transparent', borderTopColor: 'rgb(var(--gcg-accent))'}}></div>
-            <div className="absolute inset-2 rounded-full animate-spin" style={{border: '2px solid transparent', borderTopColor: 'rgb(var(--gcg-light))', animationDirection: 'reverse', animationDuration: '0.8s'}}></div>
-          </div>
-          <p className="text-base animate-pulse" style={{color: 'rgb(var(--gcg-light) /0.5)'}}>Loading leaderboard...</p>
-        </div>
-      </section>
-    );
+    return <Loader message="Loading leaderboard..." />;
   }
 
   return (
