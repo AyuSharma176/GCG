@@ -82,13 +82,6 @@ export default defineConfig({
   base: '/',
 
   plugins: [
-    // Stamp build timestamp into index.html for the inline SW cache-buster
-    {
-      name: 'inject-build-timestamp',
-      transformIndexHtml(html) {
-        return html.replace('__BUILD_TS_PLACEHOLDER__', Date.now().toString());
-      }
-    },
     react(),
     tailwindcss(),
 
@@ -121,11 +114,14 @@ export default defineConfig({
         shortcuts: []
       },
 
-      workbox: {
-        // Force new SW to activate immediately - fixes stale asset hash 404s
-        skipWaiting: true,
-        clientsClaim: true,
+      devOptions: {
+        enabled: false  // Never activate SW in dev — avoids stale cache loops
+      },
 
+      workbox: {
+        // skipWaiting + clientsClaim + autoUpdate causes an infinite reload loop:
+        // new SW activates → claims clients → page reloads → new SW detected → repeat
+        // Let the normal SW lifecycle handle updates instead.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
 
         navigateFallback: '/index.html',

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 
 // The API endpoint for your backend server
 const API_BASE = import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com";
@@ -110,10 +110,11 @@ export default function Leaderboard() {
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
           <div className="relative w-20 h-20">
-            <div className="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-transparent border-t-cyan-500 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 rounded-full" style={{border: '3px solid rgb(var(--gcg-accent) /0.15)'}}></div>
+            <div className="absolute inset-0 rounded-full animate-spin" style={{border: '3px solid transparent', borderTopColor: 'rgb(var(--gcg-accent))'}}></div>
+            <div className="absolute inset-2 rounded-full animate-spin" style={{border: '2px solid transparent', borderTopColor: 'rgb(var(--gcg-light))', animationDirection: 'reverse', animationDuration: '0.8s'}}></div>
           </div>
-          <p className="text-xl text-gray-400 animate-pulse">Loading leaderboard...</p>
+          <p className="text-base animate-pulse" style={{color: 'rgb(var(--gcg-light) /0.5)'}}>Loading leaderboard...</p>
         </div>
       </section>
     );
@@ -122,14 +123,15 @@ export default function Leaderboard() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-10">
-        <h2 className="text-2xl sm:text-4xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
+        <h2 className="text-2xl sm:text-4xl font-extrabold drop-shadow-sm" style={{background:'linear-gradient(90deg,rgb(var(--gcg-accent)),rgb(var(--gcg-light)))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>
           Leaderboard
         </h2>
         <div className="flex gap-2 sm:gap-4">
           <button
             onClick={handleRefreshLeaderboard}
             disabled={refreshing}
-            className="bg-purple-500 text-white font-bold py-2 px-3 sm:px-6 rounded-lg shadow-lg hover:bg-purple-400 transition-all duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+            className="font-bold py-2 px-3 sm:px-5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 text-sm"
+            style={{background:'rgb(var(--gcg-accent) /0.15)',border:'1px solid rgb(var(--gcg-accent) /0.4)',color:'rgb(var(--gcg-light))'}}
             title="Refresh Rankings"
           >
             <span className={refreshing ? 'inline-block animate-spin' : ''}>{refreshing ? '⟳' : '🔄'}</span>
@@ -137,24 +139,25 @@ export default function Leaderboard() {
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="bg-cyan-500 text-white font-bold py-2 px-3 sm:px-6 rounded-lg shadow-lg hover:bg-cyan-400 transition-all duration-300 text-sm sm:text-base whitespace-nowrap"
+            className="font-bold py-2 px-3 sm:px-5 rounded-lg transition-all duration-200 text-sm whitespace-nowrap"
+            style={{background:'linear-gradient(135deg,rgb(var(--gcg-mid)),rgb(var(--gcg-accent)))',color:'#fff',boxShadow:'0 0 16px rgb(var(--gcg-accent) /0.35)'}}
           >
-            Add Yourself
+            + Add Yourself
           </button>
         </div>
       </div>
 
       {/* Leaderboard Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-700 bg-gray-800/40 backdrop-blur-sm">
+      <div className="overflow-x-auto rounded-xl" style={{background:'linear-gradient(135deg,rgb(var(--gcg-mid) /0.45),rgb(var(--gcg-dark) /0.65))',border:'1px solid rgb(var(--gcg-accent) /0.3)',backdropFilter:'blur(12px)'}}>
         <table className="min-w-full text-left text-white">
-          <thead className="bg-gray-800/60">
-            <tr>
-              <th className="p-2 sm:p-4 text-sm sm:text-lg">Rank</th>
-              <th className="p-2 sm:p-4 text-sm sm:text-lg">Name</th>
-              <th className="p-2 sm:p-4 text-sm sm:text-lg">LeetCode</th>
-              <th className="p-2 sm:p-4 text-sm sm:text-lg">Codeforces</th>
-              <th className="p-2 sm:p-4 text-sm sm:text-lg">Total Qs</th>
-              <th className="p-2 sm:p-4 text-sm sm:text-lg">Score</th>
+          <thead>
+            <tr style={{background:'linear-gradient(135deg,rgb(var(--gcg-accent) /0.2),rgb(var(--gcg-mid) /0.3))',borderBottom:'1px solid rgb(var(--gcg-accent) /0.25)'}}>
+              <th className="p-3 sm:p-4 text-xs sm:text-sm font-bold uppercase tracking-wider" style={{color:'rgb(var(--gcg-light) /0.7)'}}>Rank</th>
+              <th className="p-3 sm:p-4 text-xs sm:text-sm font-bold uppercase tracking-wider" style={{color:'rgb(var(--gcg-light) /0.7)'}}>Name</th>
+              <th className="p-3 sm:p-4 text-xs sm:text-sm font-bold uppercase tracking-wider" style={{color:'rgb(var(--gcg-light) /0.7)'}}>LeetCode</th>
+              <th className="p-3 sm:p-4 text-xs sm:text-sm font-bold uppercase tracking-wider" style={{color:'rgb(var(--gcg-light) /0.7)'}}>Codeforces</th>
+              <th className="p-3 sm:p-4 text-xs sm:text-sm font-bold uppercase tracking-wider" style={{color:'rgb(var(--gcg-light) /0.7)'}}>Total Qs</th>
+              <th className="p-3 sm:p-4 text-xs sm:text-sm font-bold uppercase tracking-wider" style={{color:'rgb(var(--gcg-light) /0.7)'}}>Score</th>
             </tr>
           </thead>
           <tbody>
@@ -163,29 +166,34 @@ export default function Leaderboard() {
             ) : sortedUsers.length === 0 ? (
               <tr><td colSpan="6" className="p-3 sm:p-4 text-center text-gray-400 text-sm sm:text-base">No users yet. Be the first to add yourself!</td></tr>
             ) : sortedUsers.map((user, index) => (
-              <tr key={user._id} className="border-t border-gray-700 hover:bg-gray-700/50">
-                <td className="p-2 sm:p-4 font-bold text-base sm:text-xl">#{index + 1}</td>
-                <td className="p-2 sm:p-4 font-semibold text-sm sm:text-base">{user.name}</td>
+              <tr key={user._id} className="transition-all duration-150"
+                style={{borderTop:'1px solid rgb(var(--gcg-accent) /0.12)'}}
+                onMouseEnter={e=>e.currentTarget.style.background='rgb(var(--gcg-accent) /0.08)'}
+                onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                 <td className="p-2 sm:p-4">
-                  <a href={user.leetcodeURL} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">
+                  <span className="font-black text-base sm:text-lg" style={{color: index===0?'rgb(var(--gcg-light))': index===1?'rgb(var(--gcg-accent))': index===2?'#6aa8d8':'rgba(255,255,255,0.6)'}}>#{index + 1}</span>
+                </td>
+                <td className="p-2 sm:p-4 font-semibold text-sm sm:text-base text-white">{user.name}</td>
+                <td className="p-2 sm:p-4">
+                  <a href={user.leetcodeURL} target="_blank" rel="noopener noreferrer" className="hover:underline"
+                    style={{color:'rgb(var(--gcg-accent))'}}>
                     <div className="font-medium text-sm sm:text-base">{user.leetcodeUsername}</div>
-                    <div className="text-xs sm:text-sm text-gray-400">
-                      <span className="text-green-400">{user.leetcodeQuestions} Qs</span>
-                      {user.leetcodeRating > 0 && <span className="hidden sm:inline"> • Rating: {user.leetcodeRating}</span>}
+                    <div className="text-xs sm:text-sm" style={{color:'rgb(var(--gcg-light) /0.5)'}}>                      <span style={{color:'rgb(var(--gcg-light) /0.8)'}}>{user.leetcodeQuestions} Qs</span>
+                      {user.leetcodeRating > 0 && <span className="hidden sm:inline"> · {user.leetcodeRating}</span>}
                     </div>
                   </a>
                 </td>
                 <td className="p-2 sm:p-4">
-                  <a href={user.codeforcesURL} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">
+                  <a href={user.codeforcesURL} target="_blank" rel="noopener noreferrer" className="hover:underline"
+                    style={{color:'rgb(var(--gcg-accent))'}}>
                     <div className="font-medium text-sm sm:text-base">{user.codeforcesUsername}</div>
-                    <div className="text-xs sm:text-sm text-gray-400">
-                      <span className="text-green-400">{user.codeforcesQuestions} Qs</span>
-                      {user.codeforcesRating > 0 && <span className="hidden sm:inline"> • Rating: {user.codeforcesRating}</span>}
+                    <div className="text-xs sm:text-sm" style={{color:'rgb(var(--gcg-light) /0.5)'}}>                      <span style={{color:'rgb(var(--gcg-light) /0.8)'}}>{user.codeforcesQuestions} Qs</span>
+                      {user.codeforcesRating > 0 && <span className="hidden sm:inline"> · {user.codeforcesRating}</span>}
                     </div>
                   </a>
                 </td>
-                <td className="p-2 sm:p-4 font-bold text-sm sm:text-lg text-green-400">{user.totalQuestions}</td>
-                <td className="p-2 sm:p-4 font-bold text-sm sm:text-lg text-purple-400">{user.rankScore.toFixed(2)}</td>
+                <td className="p-2 sm:p-4 font-bold text-sm sm:text-lg" style={{color:'rgb(var(--gcg-light))'}}>{user.totalQuestions}</td>
+                <td className="p-2 sm:p-4 font-bold text-sm sm:text-lg" style={{color:'rgb(var(--gcg-accent))'}}>{user.rankScore.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -194,65 +202,38 @@ export default function Leaderboard() {
 
       {/* Add User Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
-          <div className="relative w-full max-w-lg rounded-2xl border border-gray-700 bg-[#1e293b]/90 p-8">
-            <button onClick={() => setShowForm(false)} className="absolute top-4 right-4 text-3xl text-gray-400 transition hover:text-white" aria-label="Close">&times;</button>
-            <h3 className="text-2xl font-bold text-white mb-6">Add Your Profile</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{background:'rgb(var(--gcg-dark) /0.7)',backdropFilter:'blur(16px)'}}>
+          <div className="relative w-full max-w-lg rounded-2xl p-8" style={{background:'linear-gradient(145deg,rgb(var(--gcg-dark)),rgb(var(--gcg-mid)))',border:'1px solid rgb(var(--gcg-accent) /0.35)',boxShadow:'0 0 60px rgb(var(--gcg-accent) /0.2)'}}>
+            <button onClick={() => setShowForm(false)} className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-lg transition" style={{background:'rgb(var(--gcg-accent) /0.15)',color:'rgb(var(--gcg-light) /0.7)'}} aria-label="Close">&times;</button>
+            <h3 className="text-xl font-bold text-white mb-6">Add Your Profile</h3>
             <form onSubmit={handleAddUser} className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-gray-300 mb-1">Your Name</label>
-                <input 
-                  type="text" 
-                  id="name" 
-                  name="name" 
-                  value={newUser.name} 
-                  onChange={handleInputChange} 
-                  className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" 
-                  placeholder="e.g. Jane Doe"
-                  disabled={loading}
-                  required
-                />
+                <label htmlFor="name" className="block text-sm font-medium mb-1.5" style={{color:'rgb(var(--gcg-light) /0.7)'}}>Your Name</label>
+                <input type="text" id="name" name="name" value={newUser.name} onChange={handleInputChange}
+                  className="w-full rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none transition"
+                  style={{background:'rgb(var(--gcg-accent) /0.12)',border:'1px solid rgb(var(--gcg-accent) /0.3)'}}
+                  placeholder="e.g. Jane Doe" disabled={loading} required />
               </div>
               <div>
-                <label htmlFor="leetcodeUsername" className="block text-gray-300 mb-1">LeetCode Username</label>
-                <input 
-                  type="text" 
-                  id="leetcodeUsername" 
-                  name="leetcodeUsername" 
-                  value={newUser.leetcodeUsername} 
-                  onChange={handleInputChange} 
-                  className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" 
-                  placeholder="e.g. uwi"
-                  disabled={loading}
-                  required
-                  pattern="[a-zA-Z0-9_-]+"
-                  title="Only letters, numbers, underscores, and hyphens allowed"
-                />
-                <p className="text-xs text-gray-400 mt-1">Just your username, not the full URL</p>
+                <label htmlFor="leetcodeUsername" className="block text-sm font-medium mb-1.5" style={{color:'rgb(var(--gcg-light) /0.7)'}}>LeetCode Username</label>
+                <input type="text" id="leetcodeUsername" name="leetcodeUsername" value={newUser.leetcodeUsername} onChange={handleInputChange}
+                  className="w-full rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none transition"
+                  style={{background:'rgb(var(--gcg-accent) /0.12)',border:'1px solid rgb(var(--gcg-accent) /0.3)'}}
+                  placeholder="e.g. uwi" disabled={loading} required pattern="[a-zA-Z0-9_-]+" />
+                <p className="text-xs mt-1" style={{color:'rgb(var(--gcg-light) /0.4)'}}>Just your username, not the full URL</p>
               </div>
               <div>
-                <label htmlFor="codeforcesUsername" className="block text-gray-300 mb-1">Codeforces Username</label>
-                <input 
-                  type="text" 
-                  id="codeforcesUsername" 
-                  name="codeforcesUsername" 
-                  value={newUser.codeforcesUsername} 
-                  onChange={handleInputChange} 
-                  className="w-full bg-gray-800/60 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" 
-                  placeholder="e.g. tourist"
-                  disabled={loading}
-                  required
-                  pattern="[a-zA-Z0-9_-]+"
-                  title="Only letters, numbers, underscores, and hyphens allowed"
-                />
-                <p className="text-xs text-gray-400 mt-1">Just your username, not the full URL</p>
+                <label htmlFor="codeforcesUsername" className="block text-sm font-medium mb-1.5" style={{color:'rgb(var(--gcg-light) /0.7)'}}>Codeforces Username</label>
+                <input type="text" id="codeforcesUsername" name="codeforcesUsername" value={newUser.codeforcesUsername} onChange={handleInputChange}
+                  className="w-full rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none transition"
+                  style={{background:'rgb(var(--gcg-accent) /0.12)',border:'1px solid rgb(var(--gcg-accent) /0.3)'}}
+                  placeholder="e.g. tourist" disabled={loading} required pattern="[a-zA-Z0-9_-]+" />
+                <p className="text-xs mt-1" style={{color:'rgb(var(--gcg-light) /0.4)'}}>Just your username, not the full URL</p>
               </div>
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full bg-cyan-500 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-cyan-400 transition-all duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Fetching your stats... (3-5s)' : 'Submit'}
+              <button type="submit" disabled={loading}
+                className="w-full font-bold py-3 rounded-xl transition-all duration-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{background:'linear-gradient(135deg,rgb(var(--gcg-mid)),rgb(var(--gcg-accent)))',color:'#fff',boxShadow:'0 0 20px rgb(var(--gcg-accent) /0.3)'}}>
+                {loading ? 'Fetching your stats… (3-5s)' : 'Submit Profile'}
               </button>
             </form>
           </div>

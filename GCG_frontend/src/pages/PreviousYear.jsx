@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const difficultyConfig = {
-  easy:   { label: 'Easy',   bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/30', dot: 'bg-emerald-400' },
-  medium: { label: 'Medium', bg: 'bg-amber-500/10',   text: 'text-amber-400',   border: 'border-amber-500/30',   dot: 'bg-amber-400'   },
-  hard:   { label: 'Hard',   bg: 'bg-rose-500/10',    text: 'text-rose-400',    border: 'border-rose-500/30',    dot: 'bg-rose-400'    },
-};
+  const difficultyConfig = {
+    easy:   { label: 'Easy',   bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/30', dot: 'bg-emerald-400' },
+    medium: { label: 'Medium', bg: 'bg-[rgb(var(--gcg-accent))]/10',   text: 'text-[rgb(var(--gcg-accent))]',   border: 'border-[rgb(var(--gcg-accent))]/30',   dot: 'bg-[rgb(var(--gcg-accent))]'   },
+    hard:   { label: 'Hard',   bg: 'bg-rose-500/10',    text: 'text-rose-400',    border: 'border-rose-500/30',    dot: 'bg-rose-400'    },
+  };
 
 function DifficultyBadge({ difficulty, size = 'sm' }) {
   const cfg = difficultyConfig[difficulty?.toLowerCase()] || difficultyConfig.medium;
@@ -21,7 +21,7 @@ function DifficultyBadge({ difficulty, size = 'sm' }) {
 function SectionHeader({ icon, title }) {
   return (
     <div className="flex items-center gap-3 mb-4">
-      <div className="w-1 h-6 rounded-full bg-gradient-to-b from-violet-500 to-indigo-500"></div>
+      <div className="w-1 h-6 rounded-full" style={{background:'linear-gradient(to bottom, rgb(var(--gcg-accent)), rgb(var(--gcg-mid)))'}}></div>
       <span className="text-lg font-bold text-white tracking-wide">{icon} {title}</span>
     </div>
   );
@@ -38,7 +38,7 @@ function CodeBlock({ code, label }) {
         </div>
         {label && <span className="text-xs text-white/40 ml-2 font-mono">{label}</span>}
       </div>
-      <pre className="bg-[#0d1117] text-emerald-300 p-4 overflow-x-auto font-mono text-sm leading-relaxed m-0">{code}</pre>
+      <pre className="bg-[rgb(var(--gcg-dark))] text-emerald-300 p-4 overflow-x-auto font-mono text-sm leading-relaxed m-0">{code}</pre>
     </div>
   );
 }
@@ -121,8 +121,8 @@ function PreviousYear() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="relative w-16 h-16 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full border-4 border-violet-500/20"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-violet-500 animate-spin"></div>
+            <div className="absolute inset-0 rounded-full" style={{border:'3px solid rgb(var(--gcg-accent) /0.15)'}}></div>
+            <div className="absolute inset-0 rounded-full animate-spin" style={{border:'3px solid transparent',borderTopColor:'rgb(var(--gcg-accent))'}}></div>
           </div>
           <p className="text-white/50 text-sm tracking-widest uppercase">Loading questions</p>
         </div>
@@ -135,13 +135,14 @@ function PreviousYear() {
 
       {/* Page Header */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-semibold uppercase tracking-widest mb-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 text-xs font-semibold uppercase tracking-widest"
+          style={{background:'rgb(var(--gcg-accent) /0.1)',border:'1px solid rgb(var(--gcg-accent) /0.25)',color:'rgb(var(--gcg-accent))'}}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{background:'rgb(var(--gcg-accent))'}}></span>
           Interview Prep
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-3 leading-tight">
           Interview{' '}
-          <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[rgb(var(--gcg-accent))] to-[rgb(var(--gcg-light))] bg-clip-text text-transparent">
             Questions
           </span>
         </h1>
@@ -153,7 +154,7 @@ function PreviousYear() {
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl font-bold text-white text-sm shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 active:scale-95 transition-all duration-300"
-          style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+          style={{ background: 'linear-gradient(135deg, rgb(var(--gcg-mid)), rgb(var(--gcg-accent)))', boxShadow:'0 0 24px rgb(var(--gcg-accent) /0.3)' }}
         >
           <span className="text-base"></span>
           AI Mock Interview
@@ -164,11 +165,10 @@ function PreviousYear() {
       </div>
 
       {/* Generate Question Panel */}
-      <div className="relative rounded-2xl overflow-hidden mb-8 border border-white/10">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/20 via-indigo-600/10 to-transparent pointer-events-none"></div>
+        <div className="relative rounded-2xl overflow-hidden mb-8" style={{border:'1px solid rgb(var(--gcg-accent) /0.25)'}}>        <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(135deg,rgb(var(--gcg-accent) /0.12) 0%,rgb(var(--gcg-mid) /0.08) 50%,transparent 100%)'}}></div>
         <div className="relative p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-lg">🤔</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style={{background:'rgb(var(--gcg-accent) /0.15)',border:'1px solid rgb(var(--gcg-accent) /0.3)'}}>🤔</div>
             <div>
               <h2 className="text-white font-bold text-lg">Question Generator</h2>
               <p className="text-white/40 text-xs">Generate a question tailored to your target company</p>
@@ -186,7 +186,8 @@ function PreviousYear() {
                   value={generateForm[key]}
                   onChange={(e) => setGenerateForm({ ...generateForm, [key]: e.target.value })}
                   disabled={generating}
-                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/60 focus:bg-violet-500/5 transition-all disabled:opacity-50 cursor-pointer"
+                  className="rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none transition-all disabled:opacity-50 cursor-pointer"
+                  style={{background:'rgb(var(--gcg-accent) /0.08)',border:'1px solid rgb(var(--gcg-accent) /0.2)'}}
                 >
                   {options.map(o => <option key={o} value={o} className="bg-gray-900">{o}</option>)}
                 </select>
@@ -198,7 +199,7 @@ function PreviousYear() {
                 onClick={generateQuestion}
                 disabled={generating}
                 className="relative overflow-hidden rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+                style={{ background: 'linear-gradient(135deg, rgb(var(--gcg-mid)), rgb(var(--gcg-accent)))' }}
               >
                 <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                 <span className="relative flex items-center justify-center gap-2">
@@ -248,17 +249,17 @@ function PreviousYear() {
                     onClick={() => setSelectedQuestion(index)}
                     className={`group relative text-left rounded-2xl px-4 py-3.5 border transition-all duration-200 ${
                       active
-                        ? 'bg-gradient-to-r from-violet-600/30 to-indigo-600/20 border-violet-500/50 shadow-lg shadow-violet-500/10'
+                        ? ''
                         : 'bg-white/3 border-white/8 hover:bg-white/6 hover:border-white/15'
                     }`}
-                  >
-                    {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full bg-gradient-to-b from-violet-400 to-indigo-400"></div>}
+                    style={active ? {background:'linear-gradient(135deg,rgb(var(--gcg-accent) /0.25),rgb(var(--gcg-mid) /0.35))',border:'1px solid rgb(var(--gcg-accent) /0.5)',boxShadow:'0 4px 16px rgb(var(--gcg-dark) /0.4)'} : {}}>
+                    {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full" style={{background:'linear-gradient(to bottom,rgb(var(--gcg-accent)),rgb(var(--gcg-light)))'}}></div>}
                     <div className="flex items-center justify-between mb-1.5">
                       <span className={`text-sm font-bold ${active ? 'text-white' : 'text-white/70'}`}>{q.company}</span>
                       <DifficultyBadge difficulty={q.difficulty} />
                     </div>
                     <div className="text-xs text-white/40 mb-1">{q.year}</div>
-                    <div className="text-xs text-white/30 truncate">{q.topics.slice(0, 2).join(' · ')}</div>
+                    <div className="text-xs text-white/30 truncate" style={{color:'rgb(var(--gcg-light) /0.35)'}}>{q.topics.slice(0, 2).join(' · ')}</div>
                   </button>
                 );
               })}
@@ -282,7 +283,7 @@ function PreviousYear() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {currentQuestion.topics.map((topic, i) => (
-                    <span key={i} className="px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                    <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{background:'rgb(var(--gcg-accent) /0.12)',color:'rgb(var(--gcg-light))',border:'1px solid rgb(var(--gcg-accent) /0.25)'}}>
                       {topic}
                     </span>
                   ))}
@@ -306,7 +307,7 @@ function PreviousYear() {
                     {currentQuestion.examples.map((example, i) => (
                       <div key={i} className="rounded-xl border border-white/8 bg-white/3 overflow-hidden">
                         <div className="px-4 py-2.5 border-b border-white/8 bg-white/3">
-                          <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Example {i + 1}</span>
+                          <span className="text-xs font-bold uppercase tracking-wider" style={{color:'rgb(var(--gcg-light))'}}>Example {i + 1}</span>
                         </div>
                         <div className="p-4 space-y-3">
                           <div>
@@ -335,7 +336,7 @@ function PreviousYear() {
                     <div className="rounded-xl border border-white/8 bg-white/3 divide-y divide-white/5">
                       {currentQuestion.constraints.map((c, i) => (
                         <div key={i} className="flex items-center gap-3 px-5 py-3">
-                          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0"></span>
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:'rgb(var(--gcg-accent))'}}></span>
                           <span className="text-white/60 text-sm font-mono">{c}</span>
                         </div>
                       ))}
@@ -373,8 +374,8 @@ function PreviousYear() {
                 {currentQuestion.explanation && (
                   <div>
                     <SectionHeader icon="💭" title="Solution Approach" />
-                    <div className="relative rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 px-6 py-5 text-white/65 leading-relaxed text-sm">
-                      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-t-xl"></div>
+                    <div className="relative rounded-xl px-6 py-5 text-white/65 leading-relaxed text-sm" style={{background:'linear-gradient(135deg,rgb(var(--gcg-accent) /0.1),rgb(var(--gcg-mid) /0.15))',border:'1px solid rgb(var(--gcg-accent) /0.25)'}}>
+                      <div className="absolute top-0 left-0 w-full h-0.5 rounded-t-xl" style={{background:'linear-gradient(90deg,rgb(var(--gcg-accent)),rgb(var(--gcg-light)))'}}></div>
                       {currentQuestion.explanation}
                     </div>
                   </div>

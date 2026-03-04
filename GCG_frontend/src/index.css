@@ -1,11 +1,63 @@
 @import "tailwindcss";
 
+/* ── GCG Brand Palette ──────────────────────────────────────────────────── */
+@theme {
+  --color-gcg-dark:  #0F2854;
+  --color-gcg-mid:   #1C4D8D;
+  --color-gcg-blue:  #4988C4;
+  --color-gcg-light: #BDE8F5;
+}
+
+/* ── Dynamic theme CSS variables (updated by ThemeContext.jsx) ────────────── */
+:root {
+  --gcg-dark:   15 40 84;
+  --gcg-mid:    28 77 141;
+  --gcg-accent: 73 136 196;
+  --gcg-light:  189 232 245;
+}
+
+/* ── Animations ─────────────────────────────────────────────────────────── */
+@keyframes bounceIn {
+  0%   { transform: scale(0);    opacity: 0; }
+  60%  { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-30px) scale(1.05); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.6; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@utility animate-bounce-in {
+  animation: bounceIn 0.25s ease-out forwards;
+}
+
+@utility animate-shimmer {
+  animation: shimmer 3s linear infinite;
+  background-size: 200% auto;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: rgb(var(--gcg-dark)); }
+::-webkit-scrollbar-thumb  { background: rgb(var(--gcg-accent)); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--gcg-light)); }
+
 @layer base {
   :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
-
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -16,5 +68,8 @@
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
+    background: linear-gradient(160deg, rgb(var(--gcg-dark)) 0%, rgb(var(--gcg-mid)) 50%, rgb(var(--gcg-dark) / 0.7) 100%);
+    background-attachment: fixed;
+    transition: background 0.6s ease;
   }
 }

@@ -1,4 +1,4 @@
-// Social Links Data
+﻿// Social Links Data
 const socialLinks = [
   { 
     name: "GitHub", 
@@ -30,7 +30,7 @@ export default function About() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-16">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
+        <h2 className="text-4xl font-extrabold drop-shadow-sm mb-1" style={{background:'linear-gradient(90deg,rgb(var(--gcg-accent)),rgb(var(--gcg-light)))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>
           About GCG
         </h2>
         <p className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto">
@@ -38,35 +38,32 @@ export default function About() {
         </p>
       </div>
       
-      <div className="max-w-4xl mx-auto bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 md:p-12 shadow-2xl">
+      <div className="max-w-4xl mx-auto rounded-2xl p-8 md:p-12 shadow-2xl"
+        style={{background:'linear-gradient(135deg,rgb(var(--gcg-mid) /0.5),rgb(var(--gcg-dark) /0.7))',border:'1px solid rgb(var(--gcg-accent) /0.3)',backdropFilter:'blur(12px)',boxShadow:'0 4px 40px rgb(var(--gcg-dark) /0.6),inset 0 1px 0 rgb(var(--gcg-light) /0.08)'}}>
         <div className="space-y-10">
-          {/* Mission Section */}
           <div>
-            <h3 className="text-3xl font-bold text-white mb-4">Our Mission</h3>
-            <p className="text-gray-400 text-lg leading-relaxed">
+            <h3 className="text-2xl font-bold text-white mb-4">Our Mission</h3>
+            <p className="text-base leading-relaxed" style={{color:'rgb(var(--gcg-light) /0.65)'}}>
               Our mission is to create a hub of innovation where students can learn from each other, work on impactful projects, and prepare for successful careers in the tech industry. We believe in the power of community to unlock potential.
             </p>
           </div>
 
-          {/* Divider */}
-          <hr className="border-gray-700" />
+          <hr style={{borderColor:'rgb(var(--gcg-accent) /0.2)'}} />
 
           {/* Connect Section */}
           <div className="text-center">
-            <h3 className="text-3xl font-bold text-white mb-4">Connect With Me</h3>
-            <p className="text-gray-400 mb-6">
+            <h3 className="text-2xl font-bold text-white mb-3">Connect With Me</h3>
+            <p className="mb-6 text-sm" style={{color:'rgb(var(--gcg-light) /0.5)'}}>
               Follow my journey and get in touch through my professional networks.
             </p>
             <div className="flex justify-center space-x-4">
               {socialLinks.map((link) => (
-                <a 
-                  key={link.name} 
-                  href={link.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center gap-2 text-gray-300 bg-gray-700/50 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 px-4 py-2 rounded-lg"
-                  aria-label={link.name}
-                >
+                <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200"
+                  style={{background:'rgb(var(--gcg-accent) /0.12)',border:'1px solid rgb(var(--gcg-accent) /0.3)',color:'rgb(var(--gcg-light) /0.8)'}}
+                  onMouseEnter={e=>{e.currentTarget.style.background='rgb(var(--gcg-accent) /0.25)';e.currentTarget.style.borderColor='rgb(var(--gcg-light) /0.4)';e.currentTarget.style.color='rgb(var(--gcg-light))';}}
+                  onMouseLeave={e=>{e.currentTarget.style.background='rgb(var(--gcg-accent) /0.12)';e.currentTarget.style.borderColor='rgb(var(--gcg-accent) /0.3)';e.currentTarget.style.color='rgb(var(--gcg-light) /0.8)';}}
+                  aria-label={link.name}>
                   {link.icon}
                   <span>{link.name}</span>
                 </a>
@@ -74,19 +71,19 @@ export default function About() {
             </div>
           </div>
 
-          {/* Divider */}
-          <hr className="border-gray-700" />
+          <hr style={{borderColor:'rgb(var(--gcg-accent) /0.2)'}} />
 
           {/* Contribute Section */}
           <div className="text-center">
-            <h3 className="text-3xl font-bold text-white mb-4">Contribute to GCG</h3>
-            <p className="text-gray-400 mb-6">
+            <h3 className="text-2xl font-bold text-white mb-3">Contribute to GCG</h3>
+            <p className="mb-6 text-sm" style={{color:'rgb(var(--gcg-light) /0.5)'}}>
               If you are currently studying at GLA and want to take this website forward, please get in touch.
             </p>
-            <a 
-              href="mailto:ayusharma1706@gmail.com"
-              className="inline-flex items-center gap-2 text-gray-300 bg-gray-700/50 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 px-4 py-2 rounded-lg"
-            >
+            <a href="mailto:ayusharma1706@gmail.com"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200"
+              style={{background:'rgb(var(--gcg-accent) /0.12)',border:'1px solid rgb(var(--gcg-accent) /0.3)',color:'rgb(var(--gcg-light) /0.8)'}}
+              onMouseEnter={e=>{e.currentTarget.style.background='rgb(var(--gcg-accent) /0.25)';e.currentTarget.style.borderColor='rgb(var(--gcg-light) /0.4)';e.currentTarget.style.color='rgb(var(--gcg-light))';}}
+              onMouseLeave={e=>{e.currentTarget.style.background='rgb(var(--gcg-accent) /0.12)';e.currentTarget.style.borderColor='rgb(var(--gcg-accent) /0.3)';e.currentTarget.style.color='rgb(var(--gcg-light) /0.8)';}}>
               <MailIcon />
               <span>ayusharma1706@gmail.com</span>
             </a>

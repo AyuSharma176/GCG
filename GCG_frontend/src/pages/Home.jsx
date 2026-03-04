@@ -1,82 +1,124 @@
-import { Code, BookOpen, Users, Award, Rocket, Globe } from "lucide-react";
+﻿import { Code, BookOpen, Users, Award, Rocket, Globe } from "lucide-react";
+
+const GlassCard = ({ children, className = "" }) => (
+  <div
+    className={`rounded-2xl backdrop-blur-md transition-all duration-300 ${className}`}
+    style={{
+      background: "linear-gradient(135deg, rgb(var(--gcg-mid) /0.5) 0%, rgb(var(--gcg-dark) /0.7) 100%)",
+      border: "1px solid rgb(var(--gcg-accent) /0.3)",
+      boxShadow: "0 4px 24px rgb(var(--gcg-dark) /0.5), inset 0 1px 0 rgb(var(--gcg-light) /0.08)",
+    }}
+    onMouseEnter={e => {
+      e.currentTarget.style.border = "1px solid rgb(var(--gcg-light) /0.4)";
+      e.currentTarget.style.boxShadow = "0 0 40px rgb(var(--gcg-accent) /0.18), 0 8px 32px rgb(var(--gcg-dark) /0.6), inset 0 1px 0 rgb(var(--gcg-light) /0.12)";
+      e.currentTarget.style.transform = "translateY(-4px)";
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.border = "1px solid rgb(var(--gcg-accent) /0.3)";
+      e.currentTarget.style.boxShadow = "0 4px 24px rgb(var(--gcg-dark) /0.5), inset 0 1px 0 rgb(var(--gcg-light) /0.08)";
+      e.currentTarget.style.transform = "translateY(0)";
+    }}
+  >
+    {children}
+  </div>
+);
+
+const features = [
+  { icon: <Code className="w-5 h-5" />, title: "Learn to Code", desc: "Structured tutorials, coding problems, and real-world projects tailored for every level." },
+  { icon: <Users className="w-5 h-5" />, title: "Community & Mentorship", desc: "Collaborate with peers, get guidance from seniors, and grow together." },
+  { icon: <Award className="w-5 h-5" />, title: "Compete & Win", desc: "Join coding challenges and earn your spot on the community leaderboard." },
+  { icon: <Rocket className="w-5 h-5" />, title: "Career Growth", desc: "Prepare for placements, internships, and hackathons with the right skills." },
+  { icon: <Globe className="w-5 h-5" />, title: "Global Exposure", desc: "Connect with developers worldwide and stay updated with the latest trends." },
+];
 
 export default function Home() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-12">
-      {/* Hero */}
-      <div className="text-center mb-16">
-        <h1 className="text-5xl md:text-6xl font-extrabold mb-6 drop-shadow-lg">
-          Welcome to{" "}
-          <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+
+      {/* ── Hero ── */}
+      <div className="text-center mb-20 relative">
+        <div className="absolute inset-0 -top-20 flex items-start justify-center pointer-events-none">
+          <div className="w-[700px] h-[400px] rounded-full blur-[120px] opacity-20"
+            style={{ background: "radial-gradient(circle, rgb(var(--gcg-accent)) 0%, transparent 70%)" }} />
+        </div>
+
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
+          style={{ background: "rgb(var(--gcg-accent) /0.1)", border: "1px solid rgb(var(--gcg-accent) /0.35)", color: "rgb(var(--gcg-light))" }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "rgb(var(--gcg-light))" }}></span>
+          Keep Coding · Stay Curious
+        </div>
+
+        <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
+          Welcome to<br className="hidden md:block" />
+          <span style={{ background: "linear-gradient(90deg, rgb(var(--gcg-accent)) 0%, rgb(var(--gcg-light)) 50%, rgb(var(--gcg-accent)) 100%)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
             GLA CODING GROUP
           </span>
         </h1>
-        <p className="text-lg md:text-xl text-gray-100 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+
+        <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10" style={{ color: "rgb(var(--gcg-light) /0.65)" }}>
           The coding community of{" "}
-          <span className="font-semibold">GLA University</span>.  
-          Learn, build, and grow together with resources, mentorship, and
-          competitions designed to shape you into a world-class programmer.
+          <span className="font-semibold" style={{ color: "rgb(var(--gcg-light))" }}>GLA University</span>.{" "}
+          Learn, build, and grow with resources, mentorship, and competitions designed to shape world-class programmers.
         </p>
       </div>
 
-      {/* About Cards */}
-      <div className="grid md:grid-cols-2 gap-8 mb-20">
-        <div className="p-8 rounded-2xl shadow-xl 
-            bg-white/20 dark:bg-gray-800/30 
-            backdrop-blur-md border border-white/20 dark:border-gray-700/40 
-            transform transition duration-300 hover:scale-105 hover:border-blue-400 hover:shadow-2xl">
-          <BookOpen className="w-12 h-12 text-blue-400 mb-4" />
-          <h3 className="text-2xl font-bold mb-3 text-white">About This Website</h3>
-          <p className="text-gray-100 leading-relaxed">
-            Your one-stop hub for coding enthusiasts at GLA. Access curated tutorials, 
-            articles, video lessons, projects, and coding challenges — all designed to 
+      {/* ── About Cards ── */}
+      <div className="grid md:grid-cols-2 gap-6 mb-20">
+        <GlassCard className="p-8">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
+            style={{ background: "linear-gradient(135deg, rgb(var(--gcg-accent) /0.3), rgb(var(--gcg-mid) /0.5))", border: "1px solid rgb(var(--gcg-accent) /0.4)" }}>
+            <BookOpen className="w-6 h-6" style={{ color: "rgb(var(--gcg-light))" }} />
+          </div>
+          <h3 className="text-xl font-bold mb-3 text-white">About This Website</h3>
+          <p style={{ color: "rgb(var(--gcg-light) /0.65)", lineHeight: "1.8" }}>
+            Your one-stop hub for coding enthusiasts at GLA. Access curated tutorials,
+            articles, video lessons, projects, and coding challenges — all designed to
             boost your skills and help you shine in the tech world.
           </p>
-        </div>
+        </GlassCard>
 
-        <div className="p-8 rounded-2xl shadow-xl 
-            bg-white/20 dark:bg-gray-800/30 
-            backdrop-blur-md border border-white/20 dark:border-gray-700/40 
-            transform transition duration-300 hover:scale-105 hover:border-purple-400 hover:shadow-2xl">
-          <Globe className="w-12 h-12 text-purple-400 mb-4" />
-          <h3 className="text-2xl font-bold mb-3 text-white">About GLA University</h3>
-          <p className="text-gray-100 leading-relaxed">
+        <GlassCard className="p-8">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
+            style={{ background: "linear-gradient(135deg, rgb(var(--gcg-light) /0.15), rgb(var(--gcg-accent) /0.3))", border: "1px solid rgb(var(--gcg-light) /0.25)" }}>
+            <Globe className="w-6 h-6" style={{ color: "rgb(var(--gcg-light))" }} />
+          </div>
+          <h3 className="text-xl font-bold mb-3 text-white">About GLA University</h3>
+          <p style={{ color: "rgb(var(--gcg-light) /0.65)", lineHeight: "1.8" }}>
             GLA University, Mathura, is a{" "}
-            <span className="font-semibold">NAAC A+ accredited</span> institution known 
-            for academic excellence. With world-class infrastructure and a thriving 
+            <span className="font-semibold text-white">NAAC A+ accredited</span> institution
+            known for academic excellence. With world-class infrastructure and a thriving
             tech culture, GLA nurtures innovation and career success.
           </p>
-        </div>
+        </GlassCard>
       </div>
 
-      {/* Why Join Section */}
-      <div className="text-center">
-        <h2 className="text-4xl font-extrabold mb-10 text-white drop-shadow-lg">
-          Why Join{" "}
-          <span className="text-blue-400">GCG?</span>
-        </h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {[
-            { icon: <Code className="w-10 h-10 text-indigo-400 mb-4 mx-auto" />, title: "Learn to Code", desc: "Access structured tutorials, coding problems, and real-world projects.", hover: "hover:border-indigo-400" },
-            { icon: <Users className="w-10 h-10 text-green-400 mb-4 mx-auto" />, title: "Community & Mentorship", desc: "Collaborate with peers, get guidance from seniors, and grow together.", hover: "hover:border-green-400" },
-            { icon: <Award className="w-10 h-10 text-yellow-400 mb-4 mx-auto" />, title: "Compete & Win", desc: "Join coding challenges and earn a place on the community leaderboard.", hover: "hover:border-yellow-400" },
-            { icon: <Rocket className="w-10 h-10 text-red-400 mb-4 mx-auto" />, title: "Career Growth", desc: "Prepare for placements, internships, and hackathons with the right skills.", hover: "hover:border-red-400" },
-            { icon: <Globe className="w-10 h-10 text-blue-400 mb-4 mx-auto" />, title: "Global Exposure", desc: "Connect with developers worldwide and stay updated with latest trends.", hover: "hover:border-blue-400" }
-          ].map((item, i) => (
-            <div
-              key={i}
-              className={`p-6 rounded-xl shadow-xl 
-                bg-white/20 dark:bg-gray-800/30 
-                backdrop-blur-md border border-white/20 dark:border-gray-700/40 
-                transform transition duration-300 hover:scale-105 hover:shadow-2xl ${item.hover}`}
-            >
-              {item.icon}
-              <h4 className="text-xl font-semibold mb-2 text-white">{item.title}</h4>
-              <p className="text-gray-100">{item.desc}</p>
-            </div>
+      {/* ── Why Join ── */}
+      <div className="mb-4">
+        <div className="flex items-center gap-5 mb-10">
+          <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgb(var(--gcg-accent) /0.4))" }} />
+          <h2 className="text-3xl md:text-4xl font-extrabold whitespace-nowrap">
+            Why Join{" "}
+            <span style={{ background: "linear-gradient(90deg, rgb(var(--gcg-accent)), rgb(var(--gcg-light)))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              GCG?
+            </span>
+          </h2>
+          <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgb(var(--gcg-accent) /0.4), transparent)" }} />
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map((item, i) => (
+            <GlassCard key={i} className="p-6">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                style={{ background: "linear-gradient(135deg, rgb(var(--gcg-accent) /0.25), rgb(var(--gcg-mid) /0.45))", border: "1px solid rgb(var(--gcg-accent) /0.35)" }}>
+                <span style={{ color: "rgb(var(--gcg-light))" }}>{item.icon}</span>
+              </div>
+              <h4 className="text-base font-bold mb-2 text-white">{item.title}</h4>
+              <p className="text-sm leading-relaxed" style={{ color: "rgb(var(--gcg-light) /0.6)" }}>{item.desc}</p>
+            </GlassCard>
           ))}
         </div>
       </div>
+
     </section>
   );
 }

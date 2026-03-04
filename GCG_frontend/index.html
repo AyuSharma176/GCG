@@ -5,35 +5,6 @@
     <link rel="icon" type="image/svg+xml" href="/file.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- SW cache-buster: runs inline before any module/SW intercept -->
-    <script data-build="__BUILD_TS_PLACEHOLDER__">
-      (function () {
-        var BUILD_KEY = 'gcg_sw_build';
-        var BUILD_TS  = document.currentScript
-          ? document.currentScript.dataset.build
-          : null;
-        // If we can read the injected timestamp, check against last stored one
-        if (BUILD_TS) {
-          var stored = localStorage.getItem(BUILD_KEY);
-          if (stored !== BUILD_TS) {
-            localStorage.setItem(BUILD_KEY, BUILD_TS);
-            if (stored !== null && 'serviceWorker' in navigator) {
-              // New build detected – nuke stale SW caches then reload once
-              navigator.serviceWorker.getRegistrations().then(function (regs) {
-                return Promise.all(regs.map(function (r) { return r.unregister(); }));
-              }).then(function () {
-                return caches.keys();
-              }).then(function (keys) {
-                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
-              }).then(function () {
-                window.location.reload();
-              });
-            }
-          }
-        }
-      })();
-    </script>
-    
     <!-- PWA Meta Tags -->
     <meta name="description" content="The coding community of GLA University - coding contests and leaderboards" />
     <meta name="theme-color" content="#3b82f6" />
