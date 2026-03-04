@@ -2,7 +2,8 @@
 import Loader from "../components/Loader";
 
 // The API endpoint for your backend server
-const API_BASE = import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com";
+const API_BASE = (import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com/api/leaderboard")
+  .replace(/\/api\/leaderboard$/, "");
 
 export default function Leaderboard() {
   const [users, setUsers] = useState([]);
@@ -87,14 +88,22 @@ export default function Leaderboard() {
     }
   };
 
-  // Function to refresh all rankings
+  // Function to refresh all rankings (re-pulls live stats from LeetCode & Codeforces)
   const handleRefreshLeaderboard = async () => {
     setRefreshing(true);
+    setError(null);
     try {
-      await fetchLeaderboard(); // Refresh the entire leaderboard
+      const response = await fetch(`${API_BASE}/api/leaderboard/refresh-all`, {
+        method: 'PUT',
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || 'Refresh failed');
+      }
+      await fetchLeaderboard(); // Re-fetch updated data from DB
     } catch (error) {
       console.error("Error refreshing leaderboard:", error);
-      alert("Failed to refresh leaderboard. Please try again.");
+      setError("Failed to refresh rankings. Please try again.");
     } finally {
       setRefreshing(false);
     }
