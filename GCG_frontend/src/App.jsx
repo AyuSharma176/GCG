@@ -128,7 +128,17 @@ function ThemeSelector() {
 // ─── Inner App (inside ThemeProvider) ────────────────────────────────────────
 function AppInner() {
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [appReady, setAppReady] = useState(false);
+  // Skip wake screen if server was confirmed alive within the last 10 minutes
+  const [appReady, setAppReady] = useState(() => {
+    const ts = localStorage.getItem('gcg-server-alive');
+    if (!ts) return false;
+    return (Date.now() - parseInt(ts, 10)) < 10 * 60 * 1000;
+  });
+
+  const handleServerReady = () => {
+    localStorage.setItem('gcg-server-alive', Date.now().toString());
+    setAppReady(true);
+  };
 
   const links = [
     { path: "/",             label: "Home" },
@@ -141,7 +151,7 @@ function AppInner() {
   ];
 
   if (!appReady) {
-    return <WakeUpScreen onReady={() => setAppReady(true)} />;
+    return <WakeUpScreen onReady={handleServerReady} />;
   }
 
   return (

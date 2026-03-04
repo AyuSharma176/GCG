@@ -1,10 +1,9 @@
 ﻿import { useState, useEffect, useRef, useCallback } from "react";
 
-const API_BASE =
-  (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(
-    "/api/leaderboard",
-    ""
-  );
+// Strip the leaderboard path to get the server root (e.g. https://gcg-rqxl.onrender.com)
+const API_BASE = (import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com/api/leaderboard")
+  .replace(/\/api\/leaderboard$/, "");
+// Health check is at root: GET /health
 
 // How long a dot stays visible (ms)
 const DOT_LIFETIME = 1400;
@@ -22,6 +21,21 @@ const DOT_COLORS = [
 
 let dotIdCounter = 0;
 
+// Fetch /health with AbortController timeout — returns true if server is alive
+async function pingHealth(timeoutMs = 8000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(`${API_BASE}/health`, { cache: "no-store", signal: ctrl.signal });
+    const d = await r.json();
+    return d.status === "ok";
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export default function WakeUpScreen({ onReady }) {
   const [backendReady, setBackendReady] = useState(false);
   const [dots, setDots] = useState([]);
@@ -34,32 +48,29 @@ export default function WakeUpScreen({ onReady }) {
   const spawnRef = useRef(null);
   const timerRef = useRef(null);
   const pollRef = useRef(null);
+  const doneRef = useRef(false); // prevent double-resolve
 
-  // ── Backend polling ──────────────────────────────────────────────────────
-  useEffect(() => {
-    const ping = () => {
-      fetch(`${API_BASE}/health`, { cache: "no-store" })
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.status === "ok") {
-            setBackendReady(true);
-          }
-        })
-        .catch(() => {});
-    };
-    ping(); // immediate first attempt
-    pollRef.current = setInterval(ping, 3000);
-    return () => clearInterval(pollRef.current);
+  const markReady = useCallback(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    clearInterval(pollRef.current);
+    clearInterval(spawnRef.current);
+    clearInterval(timerRef.current);
+    setBackendReady(true);
+    setShowEnter(true);
   }, []);
 
-  // When backend flips ready, stop spawning & show enter button
+  // ── Backend wake-up: one long-lived request (wakes Render) + fast polling ──
+  // Render queues the first request and responds once the server is alive (~30-90s).
+  // The short-timeout polls catch it the moment it becomes ready.
   useEffect(() => {
-    if (backendReady) {
-      clearInterval(spawnRef.current);
-      clearInterval(timerRef.current);
-      setShowEnter(true);
-    }
-  }, [backendReady]);
+    pingHealth(120_000).then(ok => { if (ok) markReady(); }); // wake request
+    pollRef.current = setInterval(async () => {
+      const ok = await pingHealth(6000);
+      if (ok) markReady();
+    }, 3000);
+    return () => clearInterval(pollRef.current);
+  }, [markReady]);
 
   // ── Elapsed timer ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -71,7 +82,7 @@ export default function WakeUpScreen({ onReady }) {
 
   // ── Dot spawner ──────────────────────────────────────────────────────────
   const spawnDot = useCallback(() => {
-    if (backendReady) return;
+    if (doneRef.current) return;
     const id = ++dotIdCounter;
     const x = 4 + Math.random() * 85; // % from left (keep away from edges)
     const y = 10 + Math.random() * 75; // % from top
