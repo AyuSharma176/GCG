@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef, useCallback } from "react";
+import Loader from "./Loader";
 
 // Strip the leaderboard path to get the server root (e.g. https://gcg-rqxl.onrender.com)
 const API_BASE = (import.meta.env.VITE_API_URL || "https://gcg-rqxl.onrender.com/api/leaderboard")
@@ -162,9 +163,14 @@ export default function WakeUpScreen({ onReady }) {
         </div>
 
         {!showEnter && (
-          <p className="mt-1 text-[rgb(var(--gcg-accent))]/60 text-xs">
-            Tap the dots while you wait!
-          </p>
+          <>
+            <div className="mt-2 scale-75 origin-top">
+              <Loader message="" />
+            </div>
+            <p className="-mt-4 text-[rgb(var(--gcg-accent))]/60 text-xs">
+              Tap the dots while you wait!
+            </p>
+          </>
         )}
       </div>
 
